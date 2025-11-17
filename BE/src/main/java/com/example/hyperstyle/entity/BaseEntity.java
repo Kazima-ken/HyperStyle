@@ -1,6 +1,6 @@
 package com.example.hyperstyle.entity;
 
-import com.example.hyperstyle.infrastructure.lister.CreatePrimaryLister;
+import com.example.hyperstyle.infrastructure.lister.CreateEntityLister;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(CreatePrimaryLister.class)
+@EntityListeners(CreateEntityLister.class)
 public class BaseEntity implements Isdentityfied {
     public static final byte LENGTH_ID = 36;
     @Id

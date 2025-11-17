@@ -5,7 +5,7 @@ import jakarta.persistence.PrePersist;
 
 import java.util.UUID;
 
-public class CreatePrimaryLister {
+public class CreateEntityLister {
     @PrePersist
     private void onPrePersist(BaseEntity entity) {
         entity.setId(UUID.randomUUID().toString());
