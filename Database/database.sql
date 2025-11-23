@@ -97,6 +97,7 @@ CREATE TABLE `bill` (
   `id` varchar(36) NOT NULL,
   `id_account` varchar(36) DEFAULT NULL,
   `id_employees` varchar(36) DEFAULT NULL,
+  `id_voucher` varchar(36) DEFAULT NULL,
   `code` varchar(255) DEFAULT NULL,
   `phone_number` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
@@ -104,6 +105,9 @@ CREATE TABLE `bill` (
   `email` varchar(255) DEFAULT NULL,
   `item_discount` decimal(38,2) DEFAULT NULL,
   `total_money` decimal(38,2) DEFAULT NULL,
+  `befor_price` decimal(38,2) DEFAULT NULL,
+  `after_price` decimal(38,2) DEFAULT NULL,
+  `discount_price` decimal(38,2) DEFAULT NULL,
   `confirmation_date` date DEFAULT NULL,
   `shipping_date` date DEFAULT NULL,
   `receive_date` date DEFAULT NULL,
@@ -118,8 +122,11 @@ CREATE TABLE `bill` (
   PRIMARY KEY (`id`),
   KEY `FKtc4upfd79unhwfqo7iem118lv` (`id_account`),
   KEY `FKkeqk1fp13v425tc98dsxk2svt` (`id_employees`),
+  KEY `FKg8m3nqf25xvt8p7k9l3j4h2z` (`id_voucher`),
+  CONSTRAINT `FKg8m3nqf25xvt8p7k9l3j4h2z` FOREIGN KEY (`id_voucher`) REFERENCES `voucher` (`id`),
   CONSTRAINT `FKkeqk1fp13v425tc98dsxk2svt` FOREIGN KEY (`id_employees`) REFERENCES `account` (`id`),
   CONSTRAINT `FKtc4upfd79unhwfqo7iem118lv` FOREIGN KEY (`id_account`) REFERENCES `account` (`id`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -389,7 +396,7 @@ CREATE TABLE `payments_method` (
   `total_money` decimal(38,2) DEFAULT NULL,
   `vnp_transaction` varchar(255) DEFAULT NULL,
   `created_date` date DEFAULT NULL,
-  `status` enum('CHUA_THANH_TOAN','DA_THANH_TOAN','HOAN_TIEN','THANH_TOAN','TRA_SAU') DEFAULT NULL,
+  `status` enum('CHUA_THANH_TOAN','DA_THANH_TOAN','THANH_TOAN','TRA_SAU') DEFAULT NULL,
   `created_by` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK4v5neyiaqyswqphbxdk0ucfio` (`id_bill`),
@@ -582,7 +589,6 @@ DROP TABLE IF EXISTS `voucher`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `voucher` (
   `id` varchar(36) NOT NULL,
-  `id_bill` varchar(36) DEFAULT NULL,
   `code` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `value` decimal(38,2) DEFAULT NULL, 
@@ -593,9 +599,7 @@ CREATE TABLE `voucher` (
   `minimum_bill` int DEFAULT NULL,
   `created_date` date DEFAULT NULL,
   `status` enum('CHUA_DOC','CHUA_KICH_HOAT','DANG_SU_DUNG','DA_DOC','HET_SAN_PHAM','KHONG_SU_DUNG') DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FKhujeo5iomes4cn11vqqf02wr5` (`id_bill`),
-  CONSTRAINT `FKhujeo5iomes4cn11vqqf02wr5` FOREIGN KEY (`id_bill`) REFERENCES `bill` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -619,9 +623,7 @@ DROP TABLE IF EXISTS `voucher_detail`;
 CREATE TABLE `voucher_detail` (
   `id` varchar(36) NOT NULL,
   `id_voucher` varchar(36) DEFAULT NULL,
-  `befor_price` decimal(38,2) DEFAULT NULL,
-  `after_price` decimal(38,2) DEFAULT NULL,
-  `discount_price` decimal(38,2) DEFAULT NULL,
+
   PRIMARY KEY (`id`),
   KEY `FKfc3ukisuvi92n8rikjn9245j6` (`id_voucher`),
   CONSTRAINT `FKfc3ukisuvi92n8rikjn9245j6` FOREIGN KEY (`id_voucher`) REFERENCES `voucher` (`id`)
