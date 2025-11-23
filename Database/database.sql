@@ -122,8 +122,8 @@ CREATE TABLE `bill` (
   PRIMARY KEY (`id`),
   KEY `FKtc4upfd79unhwfqo7iem118lv` (`id_account`),
   KEY `FKkeqk1fp13v425tc98dsxk2svt` (`id_employees`),
-  KEY `FKg8m3nqf25xvt8p7k9l3j4h2z` (`id_voucher`),
-  CONSTRAINT `FKg8m3nqf25xvt8p7k9l3j4h2z` FOREIGN KEY (`id_voucher`) REFERENCES `voucher` (`id`),
+  KEY `FKfc3ukisuvi92n8rikjn9245j6` (`id_voucher`),
+  CONSTRAINT `FKfc3ukisuvi92n8rikjn9245j6` FOREIGN KEY (`id_voucher`) REFERENCES `voucher` (`id`),
   CONSTRAINT `FKkeqk1fp13v425tc98dsxk2svt` FOREIGN KEY (`id_employees`) REFERENCES `account` (`id`),
   CONSTRAINT `FKtc4upfd79unhwfqo7iem118lv` FOREIGN KEY (`id_account`) REFERENCES `account` (`id`)
 
@@ -613,32 +613,6 @@ INSERT INTO `voucher` VALUES ();
 /*!40000 ALTER TABLE `voucher` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `voucher_detail`
---
-
-DROP TABLE IF EXISTS `voucher_detail`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `voucher_detail` (
-  `id` varchar(36) NOT NULL,
-  `id_voucher` varchar(36) DEFAULT NULL,
-
-  PRIMARY KEY (`id`),
-  KEY `FKfc3ukisuvi92n8rikjn9245j6` (`id_voucher`),
-  CONSTRAINT `FKfc3ukisuvi92n8rikjn9245j6` FOREIGN KEY (`id_voucher`) REFERENCES `voucher` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `voucher_detail`
---
-
-LOCK TABLES `voucher_detail` WRITE;
-/*!40000 ALTER TABLE `voucher_detail` DISABLE KEYS */;
-INSERT INTO `voucher_detail` VALUES ();
-/*!40000 ALTER TABLE `voucher_detail` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
