@@ -13,10 +13,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class SigninRequest {
+public class JwtAuhenticationResponse {
 
-    private String email;
+    private String token;
 
-    private String password;
-
+    private String refreshToken;
 }

@@ -1,4 +1,4 @@
-package com.example.hyperstyle.infrastructure.sercurity.auth;
+package com.example.hyperstyle.dto.request.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +18,4 @@ public class SigninRequest {
     private String email;
 
     private String password;
-
 }

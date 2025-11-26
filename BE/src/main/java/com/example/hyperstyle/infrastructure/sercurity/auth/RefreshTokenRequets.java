@@ -11,12 +11,8 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
-public class SigninRequest {
-
-    private String email;
-
-    private String password;
-
+@Builder
+public class RefreshTokenRequets {
+    private String token;
 }

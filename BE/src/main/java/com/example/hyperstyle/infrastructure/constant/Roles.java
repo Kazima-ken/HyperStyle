@@ -1,6 +1,6 @@
 package com.example.hyperstyle.infrastructure.constant;
 
-public enum Role {
+public enum Roles {
 
     ROLE_ADMIN,
     ROLE_EMLOYEE,
