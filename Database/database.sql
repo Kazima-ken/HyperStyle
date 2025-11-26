@@ -576,7 +576,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ();
+INSERT INTO `user` VALUES ("87202f1b-d304-4614-b354-46cdd68c06a3", "Nguyen Duc Chinh", "1990-01-01", "0909123456", "chinh@example.com", b'1', null, null, 'DANG_SU_DUNG');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 

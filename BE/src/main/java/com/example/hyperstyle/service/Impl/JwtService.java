@@ -34,14 +34,16 @@ public class JwtService {
     private String buildToken(Map<String, Object> claims, String subject, long expirationMillis) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMillis);
+
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(exp)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(now)
+                .expiration(exp)
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
+
 
     // Tạo access token (chứa role, id, fullName, avata nếu có)
     public String generateAccessToken(UserDetails userDetails, Map<String, Object> extraClaims) {
@@ -87,7 +89,7 @@ public class JwtService {
     }
 
     // Validate token với UserDetails
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             String username = extractUsername(token);
             return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
@@ -106,7 +108,6 @@ public class JwtService {
             return false;
         }
     }
-
 
 
 }

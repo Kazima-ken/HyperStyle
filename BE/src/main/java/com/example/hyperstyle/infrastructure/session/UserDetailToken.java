@@ -1,22 +1,24 @@
-package com.example.hyperstyle.infrastructure.sercurity.auth;
+package com.example.hyperstyle.infrastructure.session;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString
-public class SigninRequest {
+public class UserDetailToken {
+
+    private String fullName;
 
     private String email;
 
-    private String password;
+    private String id;
+
+    private String role;
 
 }
