@@ -33,8 +33,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getServletPath();
+
+        // BỎ QUA API PUBLIC
+        if (path.startsWith("/public") ||
+                path.startsWith("/client") ||
+                path.startsWith("/cart")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
 
+        // Không có token → cho qua (nhưng sẽ bị Security chặn nếu endpoint yêu cầu auth)
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -49,9 +61,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     accountDetalsService.userDetailsService().loadUserByUsername(userEmail);
 
-            if (jwtService.validateToken(token, userDetails)) {
-
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
+            if (jwtService.isTokenValid(token, userDetails)) {
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
@@ -64,6 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
                 context.setAuthentication(auth);
                 SecurityContextHolder.setContext(context);
             }
@@ -72,3 +83,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+

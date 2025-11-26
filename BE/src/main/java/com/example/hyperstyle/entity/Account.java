@@ -1,7 +1,7 @@
 package com.example.hyperstyle.entity;
 
 
-import com.example.hyperstyle.infrastructure.constant.Role;
+import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,14 +33,14 @@ public class Account extends BaseEntity implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Roles roles;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role != null ? List.of(new SimpleGrantedAuthority(role.name())) : List.of();
+        return List.of(new SimpleGrantedAuthority(roles.name()));
     }
 
     @Override
