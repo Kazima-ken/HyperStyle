@@ -5,6 +5,7 @@ public enum Message {
     SUCCESS("Success"),
     ERROR_UNKNOWN("Error Unknown");
 
+    
     private String message;
 
     Message(String message) {

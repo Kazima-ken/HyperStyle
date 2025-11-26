@@ -11,7 +11,6 @@ import com.example.hyperstyle.infrastructure.sercurity.auth.RefreshTokenRequets;
 import com.example.hyperstyle.infrastructure.sercurity.auth.SignUpRequest;
 import com.example.hyperstyle.infrastructure.sercurity.auth.SigninRequest;
 import com.example.hyperstyle.infrastructure.session.ShoseSession;
-import com.example.hyperstyle.infrastructure.session.UserDetailToken;
 import com.example.hyperstyle.repository.AccountRepository;
 import com.example.hyperstyle.repository.UserReposiory;
 import com.example.hyperstyle.service.AccountService;
