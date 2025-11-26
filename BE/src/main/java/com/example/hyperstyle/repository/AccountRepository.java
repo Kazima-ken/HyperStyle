@@ -21,4 +21,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     @Query("select case when count(Account) >0 then true else false end from Account account where account.email =:email")
     boolean existsAccountByEmail(@Param("email")String email);
 
+    @Query("SELECT ac from Account  ac where ac.id =: id")
+    Account getOneById(@Param("id") String id);
+
 }

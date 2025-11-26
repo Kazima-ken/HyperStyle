@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -39,30 +40,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .cors().configurationSource(corsConfigurationSource())
-                .and()
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.
-                        requestMatchers("/public/**", "/client/**", "/cart/**", "/admin/voucher").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAnyRole("ADMIN", "EMLOYEE")
-                        .requestMatchers("/admin/bill-detail/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers("/admin/bill-history/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers("/admin/bill/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers("/admin/customer/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers("/admin/payment/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers("/admin/product/**").hasAnyRole("EMLOYEE", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/admin/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/admin/**").hasAnyRole("ADMIN")
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-                        .anyRequest().authenticated()
+
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers("/public/**", "/client/**","/admin/voucher").permitAll()
+                                .anyRequest().authenticated()
                 )
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
-                        jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
-                )
-                .build();
+                jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
+        );
+        return http.build();
     }
 
     @Bean
@@ -86,7 +75,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"));
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

@@ -4,7 +4,6 @@ import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
 import com.example.hyperstyle.dto.request.account.ChangePasswordRequest;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.entity.User;
-import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
 import com.example.hyperstyle.infrastructure.exception.rest.RestApiException;
 import com.example.hyperstyle.infrastructure.sercurity.auth.JwtAuhenticationResponse;
@@ -22,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +63,6 @@ public class AccountServiceImpl implements AccountService {
         }
 
         try {
-            // Xác thực người dùng
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     request.getEmail(), request.getPassword()
             ));
@@ -73,11 +70,9 @@ public class AccountServiceImpl implements AccountService {
             throw new RestApiException("Xác thực thất bại: " + e.getMessage());
         }
 
-        // Lấy lại tài khoản để lấy dữ liệu mới nhất
         var account = accountRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RestApiException("Email hoặc mật khẩu không hợp lệ."));
 
-        // Tạo token JWT
         var jwt = jwtService.generateAccessToken(account, Map.of());
         var refreshToken = jwtService.generateRefreshToken(account);
 
@@ -124,6 +119,37 @@ public class AccountServiceImpl implements AccountService {
                     .build();
         }
         return null;
+    }
+
+    @Override
+    public String changePassword(ChangePasswordByIDRequest changePassword) {
+        // Sử dụng Optional<Account>
+        Optional<Account> accountOptional = accountRepository.findById(changePassword.getId());
+
+        // Kiểm tra và xử lý
+        if (accountOptional.isEmpty()) {
+            throw new RestApiException("Tài khoản không tồn tại");
+        }
+
+        Account account = accountOptional.get();
+
+        if (!passwordEncoder.matches(changePassword.getPassword(), account.getPassword())) {
+            throw new RestApiException("Mật khẩu hiện tại không đúng");
+        }
+
+        if (passwordEncoder.matches(changePassword.getNewPassword(), account.getPassword())) {
+            throw new RestApiException("Mật khẩu mới không được trùng với mật khẩu cũ");
+        }
+
+        if (!changePassword.getNewPassword().equals(changePassword.getConfirmPassword())) {
+            throw new RestApiException("Xác nhận mật khẩu không khớp");
+        }
+
+        String newPasswordEncoded = passwordEncoder.encode(changePassword.getNewPassword());
+        account.setPassword(newPasswordEncoded);
+        accountRepository.save(account);
+
+        return "Đổi mật khẩu thành công";
     }
 
 

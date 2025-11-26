@@ -24,6 +24,8 @@ public interface AccountService {
 
     JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh);
 
+    String changePassword(ChangePasswordByIDRequest changePasswordByIDRequest);
+
 
 
 

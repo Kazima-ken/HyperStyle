@@ -1,7 +1,10 @@
 package com.example.hyperstyle.controller;
 
+import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
+import com.example.hyperstyle.dto.request.account.ChangePasswordRequest;
 import com.example.hyperstyle.infrastructure.exception.rest.CustomException;
 import com.example.hyperstyle.infrastructure.sercurity.auth.JwtAuhenticationResponse;
+import com.example.hyperstyle.infrastructure.sercurity.auth.RefreshTokenRequets;
 import com.example.hyperstyle.infrastructure.sercurity.auth.SignUpRequest;
 import com.example.hyperstyle.infrastructure.sercurity.auth.SigninRequest;
 import com.example.hyperstyle.service.AccountService;
@@ -37,6 +40,18 @@ public class PublicController {
         }
         return accountService.signUp(signUpRequest);
     }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestBody ChangePasswordByIDRequest request) {
+        accountService.changePassword(request);
+        return "Đổi mật khẩu thành công";
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtAuhenticationResponse> refreshToken(@RequestBody RefreshTokenRequets requets){
+        return ResponseEntity.ok(accountService.refreshToken(requets));
+    }
+
 
 }
 

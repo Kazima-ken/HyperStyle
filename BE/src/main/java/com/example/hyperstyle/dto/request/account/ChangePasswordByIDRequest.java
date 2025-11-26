@@ -10,6 +10,9 @@ public class ChangePasswordByIDRequest {
 
     private String id;
 
+    @NotBlank(message = "Nhập mật khẩu hiện tại")
+    private String password;
+
     @NotBlank(message = "Nhập mật khẩu mới")
     private String newPassword;
 
