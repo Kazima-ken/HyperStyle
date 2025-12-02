@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.example.hyperstyle.infrastructure.constant.Gender;
 
 import java.util.Date;
 
@@ -36,7 +37,8 @@ public class User extends BaseEntity{
     private String email;
 
     @Column(name = "gender")
-    private Boolean gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(name = "avata")
     private String avata;

@@ -1,8 +1,10 @@
 package com.example.hyperstyle.entity;
 
+import com.example.hyperstyle.infrastructure.constant.Role;
 
 import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,8 +24,11 @@ import java.util.List;
 @NoArgsConstructor
 public class Account extends BaseEntity implements UserDetails {
 
-    @OneToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "id")
+    // 🎯 SỬA LỖI TRANSIENT: Thêm 'cascade = CascadeType.ALL'
+    // Điều này giúp tự động lưu User khi lưu Account
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_user", referencedColumnName = "id") // Tên cột này ĐÃ ĐÚNG
+    @JsonIgnore
     private User user;
 
     @Column(name = "email")
@@ -32,11 +37,15 @@ public class Account extends BaseEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "roles")
     @Enumerated(EnumType.STRING)
     private Roles roles;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    // --- Các phương thức UserDetails ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -72,5 +81,4 @@ public class Account extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
