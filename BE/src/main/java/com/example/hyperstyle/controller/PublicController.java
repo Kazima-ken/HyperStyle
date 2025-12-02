@@ -36,7 +36,7 @@ public class PublicController {
     @PostMapping("/signup")
     public String signup(@Valid @RequestBody SignUpRequest signUpRequest, BindingResult bindingResult) throws CustomException {
         if (bindingResult.hasErrors()) {
-            throw new CustomException(404, bindingResult.getAllErrors());
+            throw new CustomException(404, bindingResult.getAllErrors()); // line 39
         }
         return accountService.signUp(signUpRequest);
     }

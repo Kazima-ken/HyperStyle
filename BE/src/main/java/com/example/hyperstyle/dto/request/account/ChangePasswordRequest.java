@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class ChangePasswordRequest {
 
+
     @NotBlank(message = "Nhập mật khẩu hiện tại")
     private String password;
 

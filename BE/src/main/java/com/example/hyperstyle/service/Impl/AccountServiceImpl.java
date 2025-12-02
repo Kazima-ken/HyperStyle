@@ -87,25 +87,27 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public String signUp(SignUpRequest signUpRequest) {
 
-        boolean emailUserExists = userReposiory.existsUserByEmail(signUpRequest.getEmail());
-        boolean phoneUserExists = userReposiory.existsUserByPhone(signUpRequest.getNumberPhone());
-
-        if (emailUserExists) {
+        if (userReposiory.existsUserByEmail(signUpRequest.getEmail())) {
             throw new RestApiException("Email đã tồn tại");
         }
-        if (phoneUserExists) {
+
+        if (userReposiory.existsUserByPhone(signUpRequest.getNumberPhone())) {
             throw new RestApiException("Số điện thoại đã tồn tại");
         }
-        User user = createUser(signUpRequest);
 
-        boolean emailAccountExists = accountRepository.existsAccountByEmail(signUpRequest.getEmail());
-        if (emailAccountExists) {
-            throw new RestApiException("Tài Khoản đã tồn tại");
+        if (accountRepository.existsAccountByEmail(signUpRequest.getEmail())) {
+            throw new RestApiException("Tài khoản đã tồn tại");
         }
+
+        User user = createUser(signUpRequest);
+        userReposiory.save(user);
+
         Account account = createAccount(signUpRequest, user);
+        accountRepository.save(account);
 
         return "Người dùng đã được thêm vào hệ thống.";
     }
+
 
     @Override
     public JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh) {
