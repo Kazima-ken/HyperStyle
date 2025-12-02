@@ -14,4 +14,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<?> handleCustomException(CustomException ex) {
+
+        // Trả về list lỗi validation luôn
+        return ResponseEntity
+                .status(ex.getStatusCode() != null ? ex.getStatusCode() : 400)
+                .body(ex.getErrors());
+    }
 }
+

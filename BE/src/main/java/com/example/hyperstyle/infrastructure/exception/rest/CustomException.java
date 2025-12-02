@@ -10,12 +10,19 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class CustomException extends Exception{
+public class CustomException extends Exception {
 
     private Integer statusCode;
-
     private List<ObjectError> errors;
 
+    public CustomException(Integer statusCode, List<ObjectError> errors) {
+        super(errors != null && !errors.isEmpty()
+                ? errors.get(0).getDefaultMessage()
+                : "Validation error");
+        this.statusCode = statusCode;
+        this.errors = errors;
+    }
 }
+
+
+
