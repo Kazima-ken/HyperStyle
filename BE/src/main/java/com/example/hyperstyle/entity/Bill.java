@@ -35,10 +35,6 @@ public class Bill extends BaseEntity{
     @JoinColumn(name = "id_employees",referencedColumnName = "id")
     private Account employees;
 
-    @ManyToOne
-    @JoinColumn(name = "id_voucher",referencedColumnName = "id")
-    private Voucher voucher;
-
     @Column(name = "code")
     private String code;
 
@@ -59,15 +55,6 @@ public class Bill extends BaseEntity{
 
     @Column(name = "total_money")
     private BigDecimal totalMoney;
-
-    @Column(name = "befor_price")
-    private BigDecimal beforPrice;
-
-    @Column(name = "after_price")
-    private BigDecimal afterPrice;
-
-    @Column(name = "discount_price")
-    private BigDecimal discountPrice;
 
     @Column(name = "confirmation_date")
     private Date confirmationDate;
