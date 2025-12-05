@@ -3,7 +3,8 @@ package com.example.hyperstyle.controller.admin;
 import com.example.hyperstyle.dto.request.AccountRequest;
 import com.example.hyperstyle.infrastructure.constant.Role;
 import com.example.hyperstyle.service.AccountService;
-import jakarta.validation.Valid;
+import com.example.hyperstyle.validation.ValidationGroups; // <-- Import ValidationGroups
+import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +21,16 @@ public class CustomerController {
         return ResponseEntity.ok(accountService.getAllByRole(Role.ROLE_USER));
     }
 
-    @PostMapping // CREATE: Thêm mới
-    public ResponseEntity<?> createCustomer(@RequestBody @Valid AccountRequest request) { // 🎯 FIX LỖI 2: Kích hoạt Validation
+    @PostMapping // CREATE: Bắt buộc nhập mật khẩu
+    public ResponseEntity<?> createCustomer(@Validated(ValidationGroups.OnCreate.class) @RequestBody AccountRequest request) {
+        // ...
         return ResponseEntity.ok(accountService.createAccount(request, Role.ROLE_USER));
     }
 
-    @PutMapping("/{id}") // UPDATE: Cập nhật
-    public ResponseEntity<?> updateCustomer(@PathVariable String id, @RequestBody @Valid AccountRequest request) {
+    @PutMapping("/{id}") // UPDATE: KHÔNG bắt buộc nhập mật khẩu
+    public ResponseEntity<?> updateCustomer(@PathVariable String id,
+                                            @Validated(ValidationGroups.OnUpdate.class) @RequestBody AccountRequest request) { // Dùng OnUpdate
+        // ...
         return ResponseEntity.ok(accountService.updateAccount(id, request));
     }
 

@@ -75,8 +75,10 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        // 1. Cập nhật thông tin trong User
+        // Lấy User Entity liên kết
         User user = account.getUser();
+
+        // 1. Ánh xạ các trường của User Entity (Thông tin cá nhân)
         user.setFullName(req.getFullName());
         user.setPhoneNumber(req.getPhoneNumber());
         user.setDateOfBirth(req.getDateOfBirth());
@@ -84,12 +86,23 @@ public class AccountService {
         user.setCccd(req.getCccd());
         user.setAvata(req.getAvata());
 
+        // 🎯 ĐIỂM QUAN TRỌNG 1: Cập nhật email cho User Entity
+        user.setEmail(req.getEmail());
+
+        // 🎯 ĐIỂM QUAN TRỌNG 2: LƯU User Entity để đảm bảo các thay đổi bên trên được ghi vào DB
+        // Bạn phải đảm bảo đã INJECT UserRepository vào AccountService
         userRepository.save(user);
 
+        // 2. Ánh xạ các trường của Account Entity (Thông tin bảo mật)
+        // 🎯 ĐIỂM QUAN TRỌNG 3: Cập nhật email cho Account Entity
+        account.setEmail(req.getEmail());
+
+        // 3. Cập nhật Password (nếu có)
         if (req.getPassword() != null && !req.getPassword().trim().isEmpty()) {
             account.setPassword(passwordEncoder.encode(req.getPassword()));
         }
 
+        // 4. Lưu Account Entity (sẽ lưu mật khẩu và email của Account)
         return accountRepository.save(account);
     }
 
@@ -100,34 +113,4 @@ public class AccountService {
         account.setStatus(Status.KHONG_SU_DUNG);
         accountRepository.save(account);
     }
-}
-
-import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
-import com.example.hyperstyle.dto.request.account.ChangePasswordRequest;
-import com.example.hyperstyle.entity.Account;
-import com.example.hyperstyle.infrastructure.sercurity.auth.JwtAuhenticationResponse;
-import com.example.hyperstyle.infrastructure.sercurity.auth.RefreshTokenRequets;
-import com.example.hyperstyle.infrastructure.sercurity.auth.SignUpRequest;
-import com.example.hyperstyle.infrastructure.sercurity.auth.SigninRequest;
-import com.example.hyperstyle.repository.AccountRepository;
-
-import java.util.List;
-
-public interface AccountService {
-
-    List<Account>findAll ();
-
-    Account getOneEmail(String Email);
-
-    JwtAuhenticationResponse singIn(SigninRequest request);
-
-    String signUp(SignUpRequest signUpRequest);
-
-    JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh);
-
-    String changePassword(ChangePasswordByIDRequest changePasswordByIDRequest);
-
-
-
-
 }

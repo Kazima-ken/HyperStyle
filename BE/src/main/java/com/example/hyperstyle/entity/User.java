@@ -44,7 +44,7 @@ public class User extends BaseEntity{
     private String avata;
 
     @Column(name = "citizen_identity")
-    private String citizenIdentity;
+    private String cccd;
 
     @Enumerated(EnumType.STRING)
     private Status status;

@@ -1,33 +1,34 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;          // ✔ Import đúng
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "size")
 @Getter
 @Setter
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Table(name = "size")
-public class Size extends BaseEntity{
+@AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Size {
 
-    @Column(name = "name")
+    @Id
+    private String id;
+
     private String name;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(name = "created_by")
     private String createdBy;
-
 }

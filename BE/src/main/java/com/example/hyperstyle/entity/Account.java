@@ -1,8 +1,6 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Role;
-
-import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -39,7 +37,7 @@ public class Account extends BaseEntity implements UserDetails {
 
     @Column(name = "roles")
     @Enumerated(EnumType.STRING)
-    private Roles roles;
+    private Role role;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -49,7 +47,7 @@ public class Account extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(roles.name()));
+        return role != null ? List.of(new SimpleGrantedAuthority(role.name())) : List.of();
     }
 
     @Override
