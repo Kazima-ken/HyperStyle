@@ -3,6 +3,7 @@ package com.example.hyperstyle.dto.request;
 import com.example.hyperstyle.infrastructure.constant.Gender;
 import com.example.hyperstyle.infrastructure.constant.Role;
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.example.hyperstyle.validation.ValidationGroups;
 import lombok.Data;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +23,7 @@ public class AccountRequest {
     @Email(message = "Email không hợp lệ")
     private String email;
 
-    @NotBlank(message = "Mật khẩu không được để trống")
+    @NotBlank(message = "Mật khẩu không được để trống", groups = ValidationGroups.OnCreate.class)
     private String password;
 
     @Pattern(regexp = "^(0|\\+84)[0-9]{9,10}$", message = "Số điện thoại không hợp lệ")
