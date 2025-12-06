@@ -33,16 +33,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        // BỎ QUA API PUBLIC
-        if (path.startsWith("/public") ||
-                path.startsWith("/client") ||
-                path.startsWith("/cart")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         final String authHeader = request.getHeader("Authorization");
 

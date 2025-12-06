@@ -1,4 +1,4 @@
-package com.example.hyperstyle.infrastructure.repository;
+package com.example.hyperstyle.repository;
 import com.example.hyperstyle.entity.Product; // Đảm bảo Entity Product đã tồn tại
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
 package com.example.hyperstyle.service;
 import com.example.hyperstyle.entity.Product;
-import com.example.hyperstyle.infrastructure.repository.ProductRepository;
+import com.example.hyperstyle.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

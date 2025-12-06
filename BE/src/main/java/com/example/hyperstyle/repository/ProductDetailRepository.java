@@ -1,6 +1,7 @@
-package com.example.hyperstyle.infrastructure.repository;
+package com.example.hyperstyle.repository;
 
 import com.example.hyperstyle.entity.ProductDetail;
+import com.example.hyperstyle.infrastructure.constant.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,10 +12,9 @@ import java.util.Optional;
 
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, String> {
     // READ: Lấy danh sách ProductDetail theo trạng thái (Ví dụ: trạng thái đang bán)
-    Page<ProductDetail> findAllByStatus(Pageable pageable, @Param("status") Integer status);
+    Page<ProductDetail> findAllByStatus(Pageable pageable, Status status);
 
-    // READ: Lấy chi tiết sản phẩm kèm tên Product, Brand, Color, Size
-    // Đây là DTO/Projection bạn cần tự định nghĩa
+
     @Query("""
         SELECT pd FROM ProductDetail pd
         JOIN FETCH pd.product p

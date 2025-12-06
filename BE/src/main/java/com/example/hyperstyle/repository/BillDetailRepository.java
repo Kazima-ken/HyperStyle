@@ -1,10 +1,9 @@
-package com.example.hyperstyle.infrastructure.repository;
+package com.example.hyperstyle.repository;
 
 import com.example.hyperstyle.entity.BillDetail;
 import com.example.hyperstyle.dto.response.BillDetailResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

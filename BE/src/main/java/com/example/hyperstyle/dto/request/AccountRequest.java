@@ -1,7 +1,7 @@
 package com.example.hyperstyle.dto.request;
 
 import com.example.hyperstyle.infrastructure.constant.Gender;
-import com.example.hyperstyle.infrastructure.constant.Role;
+import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
 import lombok.Data;
 import jakarta.validation.constraints.Email;
@@ -36,7 +36,7 @@ public class AccountRequest {
     private String cccd;
     private String avata;
 
-    private Role role;
+    private Roles roles;
 
     private Status status;
 }

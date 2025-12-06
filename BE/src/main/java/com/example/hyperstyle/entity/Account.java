@@ -1,8 +1,7 @@
 package com.example.hyperstyle.entity;
 
-import com.example.hyperstyle.infrastructure.constant.Role;
-
 import com.example.hyperstyle.infrastructure.constant.Roles;
+
 import com.example.hyperstyle.infrastructure.constant.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

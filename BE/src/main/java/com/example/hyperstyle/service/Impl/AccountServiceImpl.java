@@ -1,7 +1,6 @@
 package com.example.hyperstyle.service.Impl;
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
-import com.example.hyperstyle.dto.request.account.ChangePasswordRequest;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.entity.User;
 import com.example.hyperstyle.infrastructure.constant.Status;

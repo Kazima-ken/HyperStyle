@@ -1,7 +1,8 @@
 package com.example.hyperstyle.service;
 
 import com.example.hyperstyle.entity.ProductDetail;
-import com.example.hyperstyle.infrastructure.repository.ProductDetailRepository;
+import com.example.hyperstyle.infrastructure.constant.Status;
+import com.example.hyperstyle.repository.ProductDetailRepository;
 import com.example.hyperstyle.dto.request.ProductDetailRequest; // Cần tạo DTO này
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class ProductDetailService {
 
     // READ: Lấy danh sách phân trang (Ví dụ: trạng thái đang hoạt động = 1)
     public Page<ProductDetail> getAllActive(Pageable pageable) {
-        return productDetailRepository.findAllByStatus(pageable, 1);
+        return productDetailRepository.findAllByStatus(pageable, Status.DANG_SU_DUNG);
     }
 
     // CREATE: Thêm mới ProductDetail
