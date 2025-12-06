@@ -1,19 +1,46 @@
 package com.example.hyperstyle.service;
 
 import com.example.hyperstyle.entity.ProductDetail;
-// Đảm bảo bạn sử dụng đúng package cho ProductDetailRequest
-import com.example.hyperstyle.dto.request.ProductDetailRequest;
+import com.example.hyperstyle.infrastructure.constant.Status;
+import com.example.hyperstyle.repository.ProductDetailRepository;
+import com.example.hyperstyle.dto.request.ProductDetailRequest; // Cần tạo DTO này
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface ProductDetailService {
+@Service
+@RequiredArgsConstructor
+public class ProductDetailService {
 
-    // Phương thức đã có
-    Page<ProductDetail> getAllActive(Pageable pageable);
+    private final ProductDetailRepository productDetailRepository;
 
-    // Phương thức mới: Tạo mới chi tiết sản phẩm
-    ProductDetail create(ProductDetailRequest request);
+    // READ: Lấy danh sách phân trang (Ví dụ: trạng thái đang hoạt động = 1)
+    public Page<ProductDetail> getAllActive(Pageable pageable) {
+        return productDetailRepository.findAllByStatus(pageable, Status.DANG_SU_DUNG);
+    }
 
-    // Phương thức mới: Cập nhật chi tiết sản phẩm
-    ProductDetail update(String id, ProductDetailRequest request);
+    // CREATE: Thêm mới ProductDetail
+    public ProductDetail create(ProductDetailRequest req) {
+        // Cần logic mapping từ Request DTO sang Entity ProductDetail
+        ProductDetail newDetail = ProductDetail.builder()
+                // ... map các trường như price, quantity, và các Entity liên quan (Product, Color, Size)
+                .build();
+        return productDetailRepository.save(newDetail);
+    }
+
+    // UPDATE: Sửa ProductDetail
+    public ProductDetail update(String id, ProductDetailRequest req) {
+        ProductDetail detail = productDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết sản phẩm"));
+
+        // ... update các trường như price, quantity...
+
+        return productDetailRepository.save(detail);
+    }
+
+    // DELETE (Xóa cứng/mềm tùy quy tắc)
+    public void delete(String id) {
+        productDetailRepository.deleteById(id);
+    }
 }

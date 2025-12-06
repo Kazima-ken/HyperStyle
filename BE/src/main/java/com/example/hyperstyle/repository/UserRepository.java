@@ -1,4 +1,4 @@
-package com.example.hyperstyle.infrastructure.repository;
+package com.example.hyperstyle.repository;
 import com.example.hyperstyle.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

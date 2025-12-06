@@ -1,72 +1,57 @@
 package com.example.hyperstyle.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import java.math.BigDecimal;
 import com.example.hyperstyle.infrastructure.constant.Gender;
 import com.example.hyperstyle.infrastructure.constant.Status;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.GenericGenerator;
-// Thêm các imports cần thiết khác nếu có (ví dụ: Auditing, GenericGenerator,...)
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Entity đại diện cho bảng 'product_detail' (Chi tiết sản phẩm)
- * Chứa thông tin về số lượng, giá, và quan hệ khóa ngoại.
- */
+import java.math.BigDecimal;
+
 @Entity
-@Table(name = "product_detail")
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class ProductDetail {
+@NoArgsConstructor
+@Table(name = "product_detail")
+public class ProductDetail extends BaseEntity{
 
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_size")
+    private Size size;
 
-    // --- CÁC TRƯỜNG THÔNG THƯỜNG ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_product")
+    private Product product;
 
-    @Column(name = "price")
-    private BigDecimal price;
-
-    @Column(name = "quantity")
-    private Integer quantity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_color")
+    private Color color;
 
     @Column(name = "description")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
-    private Gender gender; // Đảm bảo Gender enum được định nghĩa
+    private Gender gender;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "price")
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Status status; // Đảm bảo Status enum được định nghĩa
+    private Status status;
 
-    // --- QUAN HỆ KHÓA NGOẠI (FOREIGN KEYS) ---
-
-    // 1. Quan hệ với Product
-    // Đã sửa tên cột khóa ngoại thành "id_product" để khớp với giả định của bạn
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_product", referencedColumnName = "id", nullable = false)
-    @JsonIgnore
-    private Product product;
-
-    // 2. Quan hệ với Color
-    // Đã sửa tên cột khóa ngoại thành "id_color"
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_color", referencedColumnName = "id", nullable = false)
-    private Color color;
-
-    // 3. Quan hệ với Size
-    // Đã sửa tên cột khóa ngoại thành "id_size"
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_size", referencedColumnName = "id", nullable = false)
-    private Size size;
 }
