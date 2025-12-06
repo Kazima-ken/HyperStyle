@@ -2,10 +2,10 @@ package com.example.hyperstyle.service;
 
 import com.example.hyperstyle.entity.User;
 import com.example.hyperstyle.entity.Account;
-import com.example.hyperstyle.infrastructure.repository.UserRepository;
-import com.example.hyperstyle.infrastructure.repository.AccountRepository;
-import com.example.hyperstyle.infrastructure.constant.Role;
+import com.example.hyperstyle.repository.UserRepository;
+import com.example.hyperstyle.infrastructure.constant.Roles;
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.example.hyperstyle.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ public class UserService {
         account.setUser(savedUser);
         account.setEmail(savedUser.getEmail());
         account.setPassword(rawPassword); // Cần mã hóa bằng PasswordEncoder
-        account.setRole(Role.ROLE_USER);
+        account.setRoles(Roles.ROLE_USER);
         account.setStatus(Status.DANG_SU_DUNG);
 
         accountRepository.save(account);
@@ -38,7 +38,7 @@ public class UserService {
 
     // READ - GET ALL CUSTOMERS
     public List<User> getAllCustomers() {
-        return accountRepository.findByRole(Role.ROLE_USER)
+        return accountRepository.findByRoles(Roles.ROLE_USER)
                 .stream()
                 .map(Account::getUser)
                 .collect(Collectors.toList());

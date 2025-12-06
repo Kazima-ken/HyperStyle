@@ -1,47 +1,37 @@
 package com.example.hyperstyle.controller.admin;
 
-import com.example.hyperstyle.entity.ProductDetail;
-import com.example.hyperstyle.dto.request.ProductDetailRequest;
 import com.example.hyperstyle.service.ProductDetailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import com.example.hyperstyle.dto.request.ProductDetailRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/admin/product-details")
+@RequiredArgsConstructor
 public class ProductDetailController {
 
-    @Autowired
-    private ProductDetailService productDetailService;
+    private final ProductDetailService productDetailService;
 
-    // GET - Endpoint đã hoạt động
-    @GetMapping
-    public ResponseEntity<Page<ProductDetail>> getAllActive(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
+    @GetMapping // READ: Lấy danh sách phân trang (Ví dụ: /api/admin/product-details?page=0&size=10)
+    public ResponseEntity<?> getAllActive(Pageable pageable) {
         return ResponseEntity.ok(productDetailService.getAllActive(pageable));
     }
 
-    // POST - Endpoint mới: Tạo mới chi tiết sản phẩm
-    @PostMapping
-    public ResponseEntity<ProductDetail> createProductDetail(@Valid @RequestBody ProductDetailRequest request) {
-        ProductDetail createdDetail = productDetailService.create(request);
-        return ResponseEntity.status(201).body(createdDetail);
+    @PostMapping // CREATE: Thêm mới
+    public ResponseEntity<?> create(@RequestBody ProductDetailRequest request) {
+        return ResponseEntity.ok(productDetailService.create(request));
     }
 
-    // PUT - Endpoint mới: Cập nhật chi tiết sản phẩm
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductDetail> updateProductDetail(
-            @PathVariable("id") String id,
-            @Valid @RequestBody ProductDetailRequest request
-    ) {
-        ProductDetail updatedDetail = productDetailService.update(id, request);
-        return ResponseEntity.ok(updatedDetail);
+    @PutMapping("/{id}") // UPDATE: Cập nhật
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody ProductDetailRequest request) {
+        return ResponseEntity.ok(productDetailService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}") // DELETE
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        productDetailService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
