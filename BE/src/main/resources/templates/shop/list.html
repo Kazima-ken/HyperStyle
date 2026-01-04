@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sản phẩm</title>
+    <style>
+        body{font-family:Arial;padding:30px}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+        .card{border:1px solid #eee;padding:15px;cursor:pointer}
+    </style>
+</head>
+<body>
+
+<h2>TẤT CẢ SẢN PHẨM</h2>
+
+<div class="grid">
+    <div class="card"
+         th:each="item:${products}"
+         th:onclick="|window.location='/shop/detail/${item.id}'|">
+        <div>IMAGE</div>
+        <b th:text="${item.product.name}"></b><br>
+        <span th:text="${item.price}"></span>
+    </div>
+</div>
+
+</body>
+</html>

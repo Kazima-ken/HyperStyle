@@ -3,11 +3,11 @@ package com.example.hyperstyle.service;
 import com.example.hyperstyle.entity.ProductDetail;
 import com.example.hyperstyle.infrastructure.constant.Status;
 import com.example.hyperstyle.repository.ProductDetailRepository;
-import com.example.hyperstyle.dto.request.ProductDetailRequest; // Cần tạo DTO này
+import com.example.hyperstyle.dto.request.ProductDetailRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -15,32 +15,65 @@ public class ProductDetailService {
 
     private final ProductDetailRepository productDetailRepository;
 
-    // READ: Lấy danh sách phân trang (Ví dụ: trạng thái đang hoạt động = 1)
+    /* ===================== READ ===================== */
+
+    // 1️⃣ Danh sách sản phẩm đang sử dụng (shop)
     public Page<ProductDetail> getAllActive(Pageable pageable) {
-        return productDetailRepository.findAllByStatus(pageable, Status.DANG_SU_DUNG);
+        return productDetailRepository
+                .findAllByStatus(pageable, Status.DANG_SU_DUNG);
     }
 
-    // CREATE: Thêm mới ProductDetail
+    // 2️⃣ LẤY CHI TIẾT SẢN PHẨM (detail page)  ⭐ RẤT QUAN TRỌNG
+    public ProductDetail getActiveById(String id) {
+        return productDetailRepository
+                .findDetailWithRelationsAndStatus(id, Status.DANG_SU_DUNG)
+                .orElseThrow(() ->
+                        new RuntimeException("Không tìm thấy sản phẩm hoặc đã ngừng bán")
+                );
+    }
+
+    /* ===================== CREATE ===================== */
+
     public ProductDetail create(ProductDetailRequest req) {
-        // Cần logic mapping từ Request DTO sang Entity ProductDetail
-        ProductDetail newDetail = ProductDetail.builder()
-                // ... map các trường như price, quantity, và các Entity liên quan (Product, Color, Size)
+        ProductDetail detail = ProductDetail.builder()
+                .price(req.getPrice())
+                .quantity(req.getQuantity())
+                .status(Status.DANG_SU_DUNG)
+
+                // ⚠️ Giả sử bạn đã map sẵn ở controller hoặc service khác
+                // .product(product)
+                // .color(color)
+                // .size(size)
+
                 .build();
-        return productDetailRepository.save(newDetail);
-    }
-
-    // UPDATE: Sửa ProductDetail
-    public ProductDetail update(String id, ProductDetailRequest req) {
-        ProductDetail detail = productDetailRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết sản phẩm"));
-
-        // ... update các trường như price, quantity...
 
         return productDetailRepository.save(detail);
     }
 
-    // DELETE (Xóa cứng/mềm tùy quy tắc)
+    /* ===================== UPDATE ===================== */
+
+    public ProductDetail update(String id, ProductDetailRequest req) {
+        ProductDetail detail = productDetailRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Không tìm thấy chi tiết sản phẩm")
+                );
+
+        detail.setPrice(req.getPrice());
+        detail.setQuantity(req.getQuantity());
+
+        return productDetailRepository.save(detail);
+    }
+
+    /* ===================== DELETE (SOFT DELETE) ===================== */
+
+    // ❗ KHÔNG nên xoá cứng – chỉ đổi trạng thái
     public void delete(String id) {
-        productDetailRepository.deleteById(id);
+        ProductDetail detail = productDetailRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Không tìm thấy chi tiết sản phẩm")
+                );
+
+        detail.setStatus(Status.KHONG_SU_DUNG);
+        productDetailRepository.save(detail);
     }
 }

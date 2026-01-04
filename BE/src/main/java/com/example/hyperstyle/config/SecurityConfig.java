@@ -49,26 +49,52 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()   // 🔥 MỞ TOÀN BỘ
+                );
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // thêm dòng này
-                                .requestMatchers("/public/**").permitAll()
-                                .requestMatchers("/api/**").permitAll()
-                                .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(
-                jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
-        );
         return http.build();
     }
+
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/",
+//                                "/shop/**",
+//                                "/checkout/**",
+//                                "/cart/**",
+//                                "/css/**",
+//                                "/js/**",
+//                                "/image/**",
+//                                "/images/**",
+//                                "/favicon.ico"
+//                        ).permitAll()
+//
+//                        .anyRequest().authenticated()
+//                )
+//
+//                .sessionManagement(session ->
+//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
+//
+//                .authenticationProvider(authenticationProvider())
+//
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(accountDetalsService.userDetailsService());
+        daoAuthenticationProvider.setUserDetailsService(accountDetalsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }

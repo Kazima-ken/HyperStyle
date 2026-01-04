@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>HyperStyle | Giày chính hãng</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        html, body {
+        height: 100%;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+
+            /* NỀN NGOÀI */
+            background: #f2f3f5;   /* xám nhạt kiểu Shopee */
+            color: #222;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ===== HEADER ===== */
+        .header { background: #000; color: #fff; }
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo { font-size: 22px; font-weight: 800; }
+        .search { flex: 1; }
+        .search input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+        }
+        .cart { white-space: nowrap; }
+
+        /* ===== MAIN ===== */
+        main { flex: 1; }
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+            background: #ffffff;   /* NỀN TRẮNG */
+            padding: 30px;
+            border-radius: 8px;    /* bo nhẹ cho đỡ cứng */
+        }
+
+
+        /* ===== SLIDER (GIỮ) ===== */
+        .slider {
+            margin-bottom: 32px;
+        }
+
+        .slider-box {
+            position: relative;
+            height: 380px;
+            background: #eee;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide.active { display: flex; }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #f5f5f5;
+        }
+        .nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,.5);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .nav.prev { left: 12px; }
+        .nav.next { right: 12px; }
+
+        /* ===== SECTION ===== */
+        h2 { margin: 32px 0 20px; }
+
+        /* ===== GRID SẢN PHẨM ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+        .card-name { margin-top: 10px; font-size: 14px; }
+        .price { color: #e11d48; font-weight: 700; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+        background: #111;   /* đen */
+        color: #ccc;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        .footer h4 { color: #fff; margin-bottom: 10px; }
+        .footer a { display: block; color: #ccc; font-size: 14px; margin-bottom: 6px; }
+    </style>
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <div class="header-inner">
+        <div class="logo">HyperStyle</div>
+        <div class="search">
+            <input placeholder="Tìm kiếm sản phẩm...">
+        </div>
+        <a href="/cart" class="cart">🛒 Giỏ hàng</a>
+    </div>
+</div>
+
+<main>
+    <div class="container">
+
+        <!-- ===== SLIDER (KHÔNG CẮT) ===== -->
+        <div class="slider">
+            <div class="slider-box">
+                <div class="slide active">
+                    <img src="/image/slide1.png">
+                </div>
+                <div class="slide">
+                    <img src="/image/slide2.png">
+                </div>
+                <div class="slide">
+                    <img src="/image/slide3.png">
+                </div>
+                <button class="nav prev" onclick="prevSlide()">❮</button>
+                <button class="nav next" onclick="nextSlide()">❯</button>
+            </div>
+        </div>
+
+        <!-- ===== SẢN PHẨM NỔI BẬT (GIỮ) ===== -->
+        <h2>Sản phẩm nổi bật</h2>
+        <div class="grid">
+            <div class="card"
+                 th:each="item : ${products}"
+                 th:attr="data-id=${item.id}"
+                 onclick="location.href='/shop/detail/' + this.dataset.id">
+                <img th:src="${item.imageUrl}">
+                <div class="card-name" th:text="${item.product.name}"></div>
+                <div class="price"
+                     th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + ' đ'"></div>
+            </div>
+        </div>
+
+        <!-- ===== TOP SẢN PHẨM (GIỮ) ===== -->
+        <h2>Top loại giày được mua nhiều</h2>
+        <div class="grid">
+            <div class="card"
+                 th:each="item : ${topShoes}"
+                 th:attr="data-id=${item.id}"
+                 onclick="location.href='/shop/detail/' + this.dataset.id">
+                <img th:src="${item.imageUrl}">
+                <div class="card-name" th:text="${item.product.name}"></div>
+                <div class="price"
+                     th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + ' đ'"></div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div class="footer">
+    <div class="footer-inner">
+        <div>
+            <h4>HyperStyle</h4>
+            <a>Giới thiệu</a>
+            <a>Tuyển dụng</a>
+        </div>
+        <div>
+            <h4>Hỗ trợ</h4>
+            <a>Đổi trả</a>
+            <a>Bảo hành</a>
+        </div>
+        <div>
+            <h4>Thanh toán</h4>
+            <a>COD</a>
+            <a>Chuyển khoản</a>
+        </div>
+        <div>
+            <h4>Liên hệ</h4>
+            <a>Hotline: 1900 xxxx</a>
+            <a>Email: support@hyperstyle.vn</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let slides = document.querySelectorAll('.slide');
+    let idx = 0;
+    function show(i){
+        slides.forEach(s => s.classList.remove('active'));
+        slides[i].classList.add('active');
+    }
+    function nextSlide(){
+        idx = (idx + 1) % slides.length;
+        show(idx);
+    }
+    function prevSlide(){
+        idx = (idx - 1 + slides.length) % slides.length;
+        show(idx);
+    }
+    setInterval(nextSlide, 4000);
+</script>
+
+</body>
+</html>

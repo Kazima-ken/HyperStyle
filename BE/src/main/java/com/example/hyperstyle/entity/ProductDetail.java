@@ -54,4 +54,6 @@ public class ProductDetail extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private String imageUrl;
+
 }

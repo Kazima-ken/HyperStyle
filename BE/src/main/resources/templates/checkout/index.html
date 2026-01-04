@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán | HyperStyle</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background: #f2f3f5;
+            color: #222;
+        }
+
+        /* ===== HEADER ===== */
+        .header { background: #000; color: #fff; }
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo a {
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .step {
+            margin-left: auto;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* ===== MAIN ===== */
+        main { flex: 1; }
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            margin: 0 0 16px;
+            font-size: 18px;
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* ===== CART SUMMARY ===== */
+        .product {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+        }
+
+        .product-name {
+            font-size: 14px;
+        }
+
+        .price {
+            color: #e11d48;
+            font-weight: bold;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e11d48;
+        }
+
+        /* ===== BUTTON ===== */
+        .btn-checkout {
+            width: 100%;
+            padding: 14px;
+            background: #000;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-checkout:hover {
+            opacity: 0.9;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #111;
+            color: #ccc;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1000px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <a href="/shop">HyperStyle</a>
+        </div>
+        <div class="step">Giỏ hàng → Thanh toán → Hoàn tất</div>
+    </div>
+</div>
+
+<main>
+    <div class="container">
+
+        <!-- ===== LEFT: THÔNG TIN KHÁCH HÀNG ===== -->
+        <div>
+            <div class="card">
+                <h3>Thông tin giao hàng</h3>
+
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" placeholder="Nguyễn Văn A">
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" placeholder="0123 456 789">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="email@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ nhận hàng</label>
+                    <input type="text" placeholder="Số nhà, đường, phường/xã">
+                </div>
+
+                <div class="form-group">
+                    <label>Phương thức thanh toán</label>
+                    <select>
+                        <option>Thanh toán khi nhận hàng (COD)</option>
+                        <option>Chuyển khoản ngân hàng</option>
+                        <option>Ví điện tử</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT: ĐƠN HÀNG ===== -->
+        <div>
+            <div class="card">
+                <h3>Đơn hàng của bạn</h3>
+
+                <!-- ITEM -->
+                <div class="product" th:each="item : ${cart}">
+                    <img th:src="${item.imageUrl}">
+                    <div>
+                        <div class="product-name" th:text="${item.productName}"></div>
+                        <div th:text="'SL: ' + ${item.quantity}"></div>
+                        <div class="price" th:text="${item.price} + ' đ'"></div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <span>Tạm tính</span>
+                    <span th:text="${total} + ' đ'"></span>
+                </div>
+
+                <div class="row">
+                    <span>Phí vận chuyển</span>
+                    <span>30.000 đ</span>
+                </div>
+
+                <div class="row total">
+                    <span>Tổng thanh toán</span>
+                    <span th:text="${total + 30000} + ' đ'"></span>
+                </div>
+
+                <button class="btn-checkout">ĐẶT HÀNG</button>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+    <div class="footer-inner">
+        © 2026 HyperStyle – Thanh toán an toàn
+    </div>
+</div>
+
+</body>
+</html>

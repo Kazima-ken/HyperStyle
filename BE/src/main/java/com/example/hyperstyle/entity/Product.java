@@ -1,38 +1,30 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "product")
-public class Product extends BaseEntity{
+@Getter
+@Setter
+public class Product extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Material material;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_brand")
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_category")
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_material")
+    private Material material;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sole")
     private Sole sole;
 
     @Column(name = "code")
@@ -42,7 +34,6 @@ public class Product extends BaseEntity{
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
-
-
 }

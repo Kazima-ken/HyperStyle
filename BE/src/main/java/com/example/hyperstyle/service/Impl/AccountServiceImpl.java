@@ -13,6 +13,7 @@ import com.example.hyperstyle.infrastructure.session.ShoseSession;
 import com.example.hyperstyle.repository.AccountRepository;
 import com.example.hyperstyle.repository.UserReposiory;
 import com.example.hyperstyle.service.AccountService;
+import com.example.hyperstyle.service.impl.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -112,7 +113,7 @@ public class AccountServiceImpl implements AccountService {
     public JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh) {
         String userEmail = jwtService.extractUsername(refresh.getToken());
         Account account = accountRepository.findByEmail(userEmail).orElseThrow();
-        if (jwtService.isTokenValid(refresh.getToken(), account)) {
+        if (jwtService.validateToken(refresh.getToken(), account)) {
             var jwt = jwtService.generateRefreshToken(account);
             return JwtAuhenticationResponse.builder()
                     .refreshToken(refresh.getToken())

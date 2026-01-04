@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.product.name} + ' | HyperStyle'"></title>
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        a {
+        text-decoration: none;
+        color: inherit;
+        }
+
+
+        /* ===== HEADER ===== */
+        .header { background: #000; color: #fff; }
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo { font-size: 22px; font-weight: bold; }
+        .logo a { color: #fff;
+
+        }
+
+        .search { flex: 1; }
+        .search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+        }
+        .cart-link { color: #fff; }
+
+        /* ===== MAIN ===== */
+        main { flex: 1; }
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            background: #fff;
+            padding: 30px;
+        }
+
+        .detail {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 40px;
+        }
+
+        .image-box {
+            border: 1px solid #ddd;
+            height: 460px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .price {
+            font-size: 32px;
+            color: #e11d48;
+            margin: 16px 0;
+            font-weight: bold;
+        }
+
+        .info-row {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .qty {
+            width: 80px;
+            padding: 10px;
+        }
+
+        .btn {
+            padding: 14px 26px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .btn-cart {
+            background: #fff;
+            border: 2px solid #000;
+        }
+
+        .btn-buy {
+            background: #000;
+            color: #fff;
+            border: none;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        /* ===== FOOTER ===== */
+        .footer { background: #111; color: #ccc; }
+        .footer-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        .footer h4 { color: #fff; margin-bottom: 10px; }
+        .footer a {
+            display: block;
+            color: #ccc;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 900px) {
+            .detail { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-inner">
+        <div class="logo"><a href="/shop">HyperStyle</a></div>
+        <div class="search"><input placeholder="Tìm kiếm sản phẩm..."></div>
+        <a href="/cart" class="cart-link">🛒 Giỏ hàng</a>
+    </div>
+</div>
+
+<main>
+    <div class="container">
+        <div class="detail">
+            <div class="image-box">
+                <img th:src="${product.imageUrl}">
+            </div>
+
+            <div>
+                <h1 th:text="${product.product.name}"></h1>
+
+                <div class="price"
+                     th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + ' đ'"></div>
+
+                <div class="info-row" th:text="'Mô tả: ' + ${product.description}"></div>
+                <div class="info-row" th:text="'Màu: ' + ${product.color.name}"></div>
+                <div class="info-row" th:text="'Size: ' + ${product.size.name}"></div>
+                <div class="info-row" th:text="'Giới tính: ' + ${product.gender}"></div>
+                <div class="info-row" th:text="'Còn lại: ' + ${product.quantity}"></div>
+
+                <form th:action="@{/cart/add}" method="post" class="actions">
+                    <input type="hidden" name="productDetailId" th:value="${product.id}">
+                    <input class="qty" type="number" name="quantity" value="1" min="1">
+                    <button type="submit" class="btn btn-cart">Thêm vào giỏ</button>
+                    <button type="button" class="btn btn-buy">Mua ngay</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<div class="footer">
+    <div class="footer-inner">
+        <div>
+            <h4>HyperStyle</h4>
+            <a>Giới thiệu</a>
+            <a>Tuyển dụng</a>
+        </div>
+        <div>
+            <h4>Hỗ trợ</h4>
+            <a>Đổi trả</a>
+            <a>Bảo hành</a>
+        </div>
+        <div>
+            <h4>Thanh toán</h4>
+            <a>COD</a>
+            <a>Chuyển khoản</a>
+        </div>
+        <div>
+            <h4>Liên hệ</h4>
+            <a>Hotline: 1900 xxxx</a>
+            <a>Email: support@hyperstyle.vn</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
