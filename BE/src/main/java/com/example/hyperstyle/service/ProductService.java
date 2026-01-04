@@ -1,44 +1,31 @@
 package com.example.hyperstyle.service;
+
+import com.example.hyperstyle.dto.request.image.ImageRequest;
+import com.example.hyperstyle.dto.request.product.CreateProductRequest;
+import com.example.hyperstyle.dto.request.product.GetProductByNameRequest;
+import com.example.hyperstyle.dto.request.product.ReturnCreateProduct;
+import com.example.hyperstyle.dto.request.product.UpdateProductRequest;
+import com.example.hyperstyle.dto.request.product.GetProductRequest;
+import com.example.hyperstyle.dto.response.product.ProductResponse;
 import com.example.hyperstyle.entity.Product;
-import com.example.hyperstyle.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.validation.Valid;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
-@Service
-public class ProductService {
-    @Autowired // <<< Đây là nơi yêu cầu bean ProductRepository bị thiếu
-    private ProductRepository productRepository;
+public interface ProductService {
 
-    // --- Các phương thức CRUD cơ bản cho Product ---
+    List<ProductResponse> getAllProduct(final GetProductRequest request);
 
-    // CREATE
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
-    }
+    Product getOneById(String id);
 
-    // READ ALL
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
+    List<String> getAllByName(String name);
 
-    // READ BY ID
-    public Optional<Product> getProductById(String id) {
-        return productRepository.findById(id);
-    }
+    ReturnCreateProduct create(@Valid CreateProductRequest request,
+                               List<ImageRequest> listImageRequest) throws ExecutionException, InterruptedException;
 
-    // UPDATE
-    public Product updateProduct(String id, Product productDetails) {
-        return productRepository.findById(id).map(existingProduct -> {
-            // Cập nhật các trường
-            // existingProduct.setName(productDetails.getName());
-            return productRepository.save(existingProduct);
-        }).orElseThrow(() -> new RuntimeException("Product not found with id " + id));
-    }
+    Product update(@Valid UpdateProductRequest request, List<ImageRequest> images);
 
-    // DELETE
-    public void deleteProduct(String id) {
-        productRepository.deleteById(id);
-    }
+    boolean delete(String id);
+
 }

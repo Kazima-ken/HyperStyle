@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -25,18 +26,18 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "bill")
-public class Bill extends BaseEntity{
+public class Bill extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "id_account",referencedColumnName = "id")
+    @JoinColumn(name = "id_account", referencedColumnName = "id")
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "id_employees",referencedColumnName = "id")
+    @JoinColumn(name = "id_employees", referencedColumnName = "id")
     private Account employees;
 
     @ManyToOne
-    @JoinColumn(name = "id_voucher",referencedColumnName = "id")
+    @JoinColumn(name = "id_voucher", referencedColumnName = "id")
     private Voucher voucher;
 
     @Column(name = "code")
@@ -90,11 +91,11 @@ public class Bill extends BaseEntity{
     @Column(name = "money_ship")
     private BigDecimal moneyShip;
 
-    @Column(name = "last_modified_date")
-    private Date lastModifiedMate;
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
+    private LocalDateTime lastModifiedDate;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
 
     @Column(name = "create_by")
     private String createBy;

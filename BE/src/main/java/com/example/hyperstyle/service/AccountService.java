@@ -2,6 +2,8 @@ package com.example.hyperstyle.service;
 
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
+import com.example.hyperstyle.dto.response.account.AccountResponse;
+import com.example.hyperstyle.dto.response.staff.StaffReduceResponse;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.infrastructure.sercurity.auth.JwtAuhenticationResponse;
 import com.example.hyperstyle.infrastructure.sercurity.auth.RefreshTokenRequets;
@@ -12,7 +14,7 @@ import java.util.List;
 
 public interface AccountService {
 
-    List<Account>findAll ();
+    List<Account>getAll ();
 
     Account getOneEmail(String Email);
 
@@ -24,7 +26,8 @@ public interface AccountService {
 
     String changePassword(ChangePasswordByIDRequest changePasswordByIDRequest);
 
+    List<StaffReduceResponse> getAllStaff();
 
-
+    AccountResponse getByIdBill(String idBill );
 
 }

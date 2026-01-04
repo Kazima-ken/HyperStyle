@@ -18,7 +18,7 @@ public class AccountDetailsServiceImpl implements AccountDetalsService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return accountRepository.findByEmail(username)
+                return accountRepository.getByEmail(username)
                         .map(account -> (UserDetails) account)
                         .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
             }

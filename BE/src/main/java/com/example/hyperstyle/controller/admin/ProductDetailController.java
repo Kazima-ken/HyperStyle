@@ -1,37 +1,71 @@
 package com.example.hyperstyle.controller.admin;
 
+import com.example.hyperstyle.dto.request.productDetail.GetProductDetailRequest;
+import com.example.hyperstyle.dto.request.productDetail.ReturnCreateProductDetail;
+import com.example.hyperstyle.dto.request.productDetail.UpdateQuantityAndPrice;
+import com.example.hyperstyle.entity.ProductDetail;
+import com.example.hyperstyle.repository.ColorRepository;
+import com.example.hyperstyle.repository.ProductRepository;
+import com.example.hyperstyle.repository.SizeRepository;
 import com.example.hyperstyle.service.ProductDetailService;
-import com.example.hyperstyle.dto.request.ProductDetailRequest;
+import com.example.hyperstyle.dto.request.productDetail.ProductDetailRequest;
+import com.example.hyperstyle.util.ResponseObject;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/product-details")
+@RequestMapping("/admin/product-details")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class ProductDetailController {
 
     private final ProductDetailService productDetailService;
+    private final ProductRepository productRepository;
+    private final SizeRepository sizeRepository;
+    private final ColorRepository colorRepository;
 
-    @GetMapping // READ: Lấy danh sách phân trang (Ví dụ: /api/admin/product-details?page=0&size=10)
-    public ResponseEntity<?> getAllActive(Pageable pageable) {
-        return ResponseEntity.ok(productDetailService.getAllActive(pageable));
+    @GetMapping
+    public ResponseObject<?> getAll(@ModelAttribute GetProductDetailRequest request) {
+        return ResponseObject.success(productDetailService.getAllActive(request
+        ));
     }
 
-    @PostMapping // CREATE: Thêm mới
-    public ResponseEntity<?> create(@RequestBody ProductDetailRequest request) {
-        return ResponseEntity.ok(productDetailService.create(request));
+    @GetMapping("/{id}")
+    public ResponseObject<?> getOneById(@PathVariable("id") String id) {
+        return ResponseObject.success(productDetailService.getOneById(id)
+        );
     }
 
-    @PutMapping("/{id}") // UPDATE: Cập nhật
-    public ResponseEntity<?> update(@PathVariable String id, @RequestBody ProductDetailRequest request) {
-        return ResponseEntity.ok(productDetailService.update(id, request));
+    @PostMapping
+    public ResponseObject<?> create(@RequestBody @Valid ProductDetailRequest request) {
+        return ResponseObject.success(productDetailService.create(request));
     }
 
-    @DeleteMapping("/{id}") // DELETE
-    public ResponseEntity<?> delete(@PathVariable String id) {
-        productDetailService.delete(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}")
+    public ResponseObject<?> update(
+            @PathVariable String id,
+            @RequestBody @Valid ProductDetailRequest request
+    ) {
+        ProductDetail updatedEntity = productDetailService.update(id, request);
+
+        ReturnCreateProductDetail response = new ReturnCreateProductDetail(updatedEntity);
+
+        return ResponseObject.success(response);
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseObject<?> delete(@PathVariable String id) {
+        return null;
+    }
+
+    @PutMapping("/list-data")
+    public ResponseObject<?>  updateList(@RequestBody List<UpdateQuantityAndPrice> requestData) {
+        System.out.println(requestData);
+        return ResponseObject.success(productDetailService.updateList(requestData));
+    }
+
 }

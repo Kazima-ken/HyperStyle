@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -36,11 +37,11 @@ public class BillHistory extends BaseEntity{
     @Column(name = "action_description")
     private String actionDescription;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
 
     @Column(name = "lastModifiedDate")
-    private Date lastModifiedDate;
+    private LocalDateTime lastModifiedDate;
 
     @Column(name = "created_by")
     private String createdBy;

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -33,10 +37,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-
         final String authHeader = request.getHeader("Authorization");
 
-        // Không có token → cho qua (nhưng sẽ bị Security chặn nếu endpoint yêu cầu auth)
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -48,25 +50,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(userEmail)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails =
-                    accountDetalsService.userDetailsService().loadUserByUsername(userEmail);
+            UserDetails userDetails = accountDetalsService.userDetailsService().loadUserByUsername(userEmail);
 
             if (jwtService.isTokenValid(token, userDetails)) {
+
+                List<String> roles = jwtService.extractRoles(token);
+
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (roles != null) {
+                    authorities = roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+                }
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                userDetails.getAuthorities()
+                                authorities
                         );
 
-                auth.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-                context.setAuthentication(auth);
-                SecurityContextHolder.setContext(context);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 

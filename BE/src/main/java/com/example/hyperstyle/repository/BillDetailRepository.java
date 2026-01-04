@@ -11,20 +11,20 @@ import java.util.List;
 @Repository
 public interface BillDetailRepository extends JpaRepository<BillDetail, String> {
 
-    @Query(value = """
-    SELECT new com.example.hyperstyle.dto.response.BillDetailResponse(
-        bd.id,
-        pd.product.name,
-        pd.product.brand.name,
-        pd.color.name,
-        pd.size.name,
-        bd.quantity,
-        bd.price,
-        (bd.quantity * bd.price)
-    )
-    FROM BillDetail bd
-    JOIN bd.productDetail pd
-    WHERE bd.bill.id = :billId
-""", nativeQuery = false)
-    List<BillDetailResponse> getAllByBillId(String billId);
+//    @Query(value = """
+//    SELECT new com.example.hyperstyle.dto.response.BillDetailResponse(
+//        bd.id,
+//        pd.product.name,
+//        pd.product.brand.name,
+//        pd.color.name,
+//        pd.size.name,
+//        bd.quantity,
+//        bd.price,
+//        (bd.quantity * bd.price)
+//    )
+//    FROM BillDetail bd
+//    JOIN bd.productDetail pd
+//    WHERE bd.bill.id = :billId
+//""", nativeQuery = false)
+//    List<BillDetailResponse> getAllByBillId(String billId);
 }

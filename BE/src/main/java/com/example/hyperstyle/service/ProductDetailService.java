@@ -1,46 +1,27 @@
 package com.example.hyperstyle.service;
 
+import com.example.hyperstyle.dto.request.productDetail.GetProductDetailRequest;
+import com.example.hyperstyle.dto.request.productDetail.UpdateQuantityAndPrice;
+import com.example.hyperstyle.dto.response.productdetail.GetByProduct;
+import com.example.hyperstyle.dto.response.productdetail.ProductDetailResponse;
 import com.example.hyperstyle.entity.ProductDetail;
-import com.example.hyperstyle.infrastructure.constant.Status;
-import com.example.hyperstyle.repository.ProductDetailRepository;
-import com.example.hyperstyle.dto.request.ProductDetailRequest; // Cần tạo DTO này
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.example.hyperstyle.dto.request.productDetail.ProductDetailRequest; // Cần tạo DTO này
+import jakarta.validation.Valid;
 
-@Service
-@RequiredArgsConstructor
-public class ProductDetailService {
+import java.util.List;
 
-    private final ProductDetailRepository productDetailRepository;
+public interface ProductDetailService {
 
-    // READ: Lấy danh sách phân trang (Ví dụ: trạng thái đang hoạt động = 1)
-    public Page<ProductDetail> getAllActive(Pageable pageable) {
-        return productDetailRepository.findAllByStatus(pageable, Status.DANG_SU_DUNG);
-    }
+    List<ProductDetailResponse> getAllActive(final GetProductDetailRequest request);
 
-    // CREATE: Thêm mới ProductDetail
-    public ProductDetail create(ProductDetailRequest req) {
-        // Cần logic mapping từ Request DTO sang Entity ProductDetail
-        ProductDetail newDetail = ProductDetail.builder()
-                // ... map các trường như price, quantity, và các Entity liên quan (Product, Color, Size)
-                .build();
-        return productDetailRepository.save(newDetail);
-    }
+    ProductDetail create(@Valid final ProductDetailRequest request);
 
-    // UPDATE: Sửa ProductDetail
-    public ProductDetail update(String id, ProductDetailRequest req) {
-        ProductDetail detail = productDetailRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy chi tiết sản phẩm"));
+    ProductDetail update(@Valid final String id, ProductDetailRequest request);
 
-        // ... update các trường như price, quantity...
+    List<GetByProduct> getOneById(String id);
 
-        return productDetailRepository.save(detail);
-    }
+    List<UpdateQuantityAndPrice> updateList(List<UpdateQuantityAndPrice> requestData);
 
-    // DELETE (Xóa cứng/mềm tùy quy tắc)
-    public void delete(String id) {
-        productDetailRepository.deleteById(id);
-    }
+    boolean delete(String id);
+
 }

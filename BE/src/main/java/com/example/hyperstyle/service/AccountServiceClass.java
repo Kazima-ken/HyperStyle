@@ -23,7 +23,7 @@ public class AccountServiceClass {
 
     // READ: Lấy danh sách chung
     public List<Account> getAllByRoles(Roles roles) {
-        return accountRepository.findByRoles(roles);
+        return accountRepository.getByRoles(roles);
     }
 
     // CREATE: Thêm mới (dùng chung cho NV và KH)
@@ -31,7 +31,7 @@ public class AccountServiceClass {
     public Account createAccount(AccountRequest req, Roles roles) {
 
         // 1. Kiểm tra Email tồn tại
-        if (accountRepository.findByEmail(req.getEmail()).isPresent()) {
+        if (accountRepository.getByEmail(req.getEmail()).isPresent()) {
             throw new RuntimeException("Email đã tồn tại!");
         }
 

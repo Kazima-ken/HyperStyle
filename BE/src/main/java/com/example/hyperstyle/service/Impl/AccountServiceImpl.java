@@ -1,6 +1,8 @@
 package com.example.hyperstyle.service.Impl;
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
+import com.example.hyperstyle.dto.response.account.AccountResponse;
+import com.example.hyperstyle.dto.response.staff.StaffReduceResponse;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.entity.User;
 import com.example.hyperstyle.infrastructure.constant.Status;
@@ -41,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
     private final ShoseSession shoseSession;
 
     @Override
-    public List<Account> findAll() {
+    public List<Account> getAll() {
         return null;
     }
 
@@ -69,7 +71,7 @@ public class AccountServiceImpl implements AccountService {
             throw new RestApiException("Xác thực thất bại: " + e.getMessage());
         }
 
-        var account = accountRepository.findByEmail(request.getEmail())
+        var account = accountRepository.getByEmail(request.getEmail())
                 .orElseThrow(() -> new RestApiException("Email hoặc mật khẩu không hợp lệ."));
 
         var jwt = jwtService.generateAccessToken(account, Map.of());
@@ -111,7 +113,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh) {
         String userEmail = jwtService.extractUsername(refresh.getToken());
-        Account account = accountRepository.findByEmail(userEmail).orElseThrow();
+        Account account = accountRepository.getByEmail(userEmail).orElseThrow();
         if (jwtService.isTokenValid(refresh.getToken(), account)) {
             var jwt = jwtService.generateRefreshToken(account);
             return JwtAuhenticationResponse.builder()
@@ -174,4 +176,13 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Override
+    public List<StaffReduceResponse> getAllStaff() {
+        return accountRepository.getAllStaff();
+    }
+
+    @Override
+    public AccountResponse getByIdBill(String idBill) {
+        return accountRepository.getAccountByIdBill(idBill);
+    }
 }

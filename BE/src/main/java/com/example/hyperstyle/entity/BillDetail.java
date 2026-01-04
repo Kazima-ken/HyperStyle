@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -34,8 +35,11 @@ public class BillDetail extends BaseEntity{
     @JoinColumn(name = "id_bill",referencedColumnName = "id")
     private Bill bill;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
+
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
+    private LocalDateTime lastModifiedDate;
 
     @Column(name = "quantity")
     private Integer quantity;

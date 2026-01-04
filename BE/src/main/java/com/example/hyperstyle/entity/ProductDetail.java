@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -38,6 +39,12 @@ public class ProductDetail extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_color")
     private Color color;
+
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
+    private LocalDateTime lastModifiedDate;
+
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
 
     @Column(name = "description")
     private String description;

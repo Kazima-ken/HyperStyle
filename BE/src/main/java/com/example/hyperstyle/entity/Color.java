@@ -1,6 +1,7 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Table(name = "color")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Color extends BaseEntity{
 
     @Column(name = "name")
@@ -32,7 +34,5 @@ public class Color extends BaseEntity{
 
     @Column(name = "created_by")
     private String createdBy;
-
-
 
 }
