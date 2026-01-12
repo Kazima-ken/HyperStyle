@@ -2,6 +2,7 @@ package com.example.hyperstyle.service.Impl;
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
 import com.example.hyperstyle.dto.response.account.AccountResponse;
+import com.example.hyperstyle.dto.response.staff.StaffFullResponse;
 import com.example.hyperstyle.dto.response.staff.StaffReduceResponse;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.entity.User;
@@ -14,6 +15,7 @@ import com.example.hyperstyle.infrastructure.sercurity.auth.SigninRequest;
 import com.example.hyperstyle.infrastructure.session.ShoseSession;
 import com.example.hyperstyle.repository.AccountRepository;
 import com.example.hyperstyle.repository.UserReposiory;
+import com.example.hyperstyle.repository.UserRepository;
 import com.example.hyperstyle.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,18 +40,20 @@ public class AccountServiceImpl implements AccountService {
 
     private final JwtService jwtService;
 
-    private final UserReposiory userReposiory;
+    private final UserRepository userReposiory;
 
     private final ShoseSession shoseSession;
 
     @Override
     public List<Account> getAll() {
-        return null;
+        // Sử dụng phương thức có sẵn của JpaRepository
+        return accountRepository.findAll();
     }
 
     @Override
-    public Account getOneEmail(String Email) {
-        return null;
+    public Account getOneEmail(String email) {
+        // Sử dụng phương thức bạn đã định nghĩa trong Repository
+        return accountRepository.getOneByEmail(email);
     }
 
     @Override
@@ -81,6 +85,7 @@ public class AccountServiceImpl implements AccountService {
         return JwtAuhenticationResponse.builder()
                 .refreshToken(refreshToken)
                 .token(jwt)
+                .idAccount(account.getId())
                 .build();
     }
 
@@ -177,7 +182,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<StaffReduceResponse> getAllStaff() {
+    public List<StaffFullResponse> getAllStaff() {
         return accountRepository.getAllStaff();
     }
 

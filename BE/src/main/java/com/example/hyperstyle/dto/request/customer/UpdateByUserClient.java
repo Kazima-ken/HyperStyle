@@ -1,8 +1,13 @@
 package com.example.hyperstyle.dto.request.customer;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -12,7 +17,7 @@ public class UpdateByUserClient {
 
     private String fullName;
 
-    private Long dateOfBirth;
+    private Date dateOfBirth;
 
     private String phoneNumber;
 

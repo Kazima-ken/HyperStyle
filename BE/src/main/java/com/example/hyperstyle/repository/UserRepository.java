@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -24,10 +25,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                 u.avata AS avata,
                 u.email AS email,
                 u.phone_number AS phoneNumber,
-                u.updated_by AS updatedBy,
-                u.created_by AS createdBy,
                 u.status AS status,
-                u.last_modified_date AS lastModifiedDate,
                 u.citizen_identity AS citizenIdentity,
                 a.password AS passWord,
                 a.id AS idAccount
@@ -54,5 +52,51 @@ public interface UserRepository extends JpaRepository<User, String> {
             ORDER BY u.id  DESC  
             """, nativeQuery = true)
     List<StaffFullResponse> getAll(@Param("req") FindStaffRequest request);
+
+    @Query(value = """
+                SELECT
+                 ROW_NUMBER() OVER (ORDER BY u.id DESC ) AS stt,
+                    u.id AS id,
+                    u.gender AS gender,
+                    u.full_name AS fullName,
+                    u.date_of_birth AS dateOfBirth,
+                    u.avata AS avata,
+                    u.email AS email,
+                    u.phone_number AS phoneNumber,
+                    u.status AS status,
+                    u.citizen_identity AS citizenIdentity,
+                    a.password AS password,
+                    a.id AS idAccount
+                FROM user u
+                JOIN account a ON u.id = a.id_user
+                WHERE u.id = :id
+                """, nativeQuery = true)
+    Optional<UserResponse> getOneWithPassword(@Param("id") String id);
+
+    @Query(value = """
+                SELECT
+                 ROW_NUMBER() OVER (ORDER BY u.id DESC ) AS stt,
+                    u.id AS id,
+                    u.gender AS gender,
+                    u.full_name AS fullName,
+                    u.date_of_birth AS dateOfBirth,
+                    u.avata AS avata,
+                    u.email AS email,
+                    u.phone_number AS phoneNumber,
+                    u.status AS status,
+                    u.citizen_identity AS citizenIdentity,
+                    a.password AS password,
+                    a.id AS idAccount
+                FROM user u
+                JOIN account a ON u.id = a.id_user
+                WHERE u.id = :id
+                """, nativeQuery = true)
+    Optional<StaffFullResponse> getOneWithId(@Param("id") String id);
+
+    @Query("SELECT CASE WHEN COUNT(user) > 0 THEN true ELSE false END FROM User user WHERE user.phoneNumber = :phoneNumber")
+    boolean existsUserByPhone(@Param("phoneNumber") String phoneNumber);
+
+    @Query("SELECT CASE WHEN COUNT(user) > 0 THEN true ELSE false END FROM User user WHERE user.email = :email")
+    boolean existsUserByEmail(@Param("email") String email);
 
 }

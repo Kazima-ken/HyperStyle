@@ -1,6 +1,7 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.BillStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -48,6 +49,8 @@ public class BillDetail extends BaseEntity{
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="status_bill")
+    @JsonProperty("statusBill")
     private BillStatus billStatus;
 
 }

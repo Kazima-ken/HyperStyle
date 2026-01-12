@@ -37,8 +37,8 @@ public interface AddressUserReponse {
     @Value("#{target.provinceId}")
     String getProvinceId();
 
-    @Value("#{target.toDistrictId}")
-    String getToDistrictId();
+    @Value("#{target.DistrictId}")
+    String getDistrictId();
 
     @Value("#{target.wardCode}")
     String getWardCode();

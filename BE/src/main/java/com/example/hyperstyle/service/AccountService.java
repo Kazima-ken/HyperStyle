@@ -3,6 +3,7 @@ package com.example.hyperstyle.service;
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
 import com.example.hyperstyle.dto.response.account.AccountResponse;
+import com.example.hyperstyle.dto.response.staff.StaffFullResponse;
 import com.example.hyperstyle.dto.response.staff.StaffReduceResponse;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.infrastructure.sercurity.auth.JwtAuhenticationResponse;
@@ -26,7 +27,7 @@ public interface AccountService {
 
     String changePassword(ChangePasswordByIDRequest changePasswordByIDRequest);
 
-    List<StaffReduceResponse> getAllStaff();
+    List<StaffFullResponse> getAllStaff();
 
     AccountResponse getByIdBill(String idBill );
 

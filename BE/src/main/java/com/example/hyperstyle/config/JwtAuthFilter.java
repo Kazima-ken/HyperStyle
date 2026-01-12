@@ -1,6 +1,7 @@
 package com.example.hyperstyle.config;
 
 import com.example.hyperstyle.infrastructure.sercurity.config.AccountDetalsService;
+import com.example.hyperstyle.infrastructure.session.UserDetailToken;
 import com.example.hyperstyle.service.Impl.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -44,34 +45,57 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String token = authHeader.substring(7);
-        final String userEmail = jwtService.extractUsername(token);
+        final String token = authHeader.substring(7).trim();
+
+        if (token.isEmpty() || token.chars().filter(ch -> ch == '.').count() != 2) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String userEmail;
+        try {
+            userEmail = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            // token bẩn → bỏ qua
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (StringUtils.hasText(userEmail)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails = accountDetalsService.userDetailsService().loadUserByUsername(userEmail);
+            UserDetails userDetails =
+                    accountDetalsService.userDetailsService().loadUserByUsername(userEmail);
 
             if (jwtService.isTokenValid(token, userDetails)) {
 
-                List<String> roles = jwtService.extractRoles(token);
+                List<SimpleGrantedAuthority> authorities =
+                        jwtService.extractRoles(token)
+                                .stream()
+                                .map(SimpleGrantedAuthority::new)
+                                .toList();
 
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                if (roles != null) {
-                    authorities = roles.stream()
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                }
+                // --- BẮT ĐẦU SỬA ---
 
+                // 1. Tạo đối tượng UserDetailToken (Custom của bạn)
+                UserDetailToken customPrincipal = new UserDetailToken();
+                customPrincipal.setEmail(userEmail); // Quan trọng: Set Email lấy từ Token
+                // customPrincipal.setId(...); // Token không có ID nên ID sẽ là null, nhưng logic mới của bạn đã dùng Email nên ổn.
+
+                // Nếu bạn muốn lấy ID từ DB (vì userDetails đã load xong), bạn có thể cast:
+                // if (userDetails instanceof Account) { customPrincipal.setId(((Account)userDetails).getId()); }
+
+                // 2. Truyền customPrincipal vào làm tham số đầu tiên
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                customPrincipal, // <--- Thay userDetails bằng cái này
                                 null,
                                 authorities
                         );
 
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // --- KẾT THÚC SỬA ---
 
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

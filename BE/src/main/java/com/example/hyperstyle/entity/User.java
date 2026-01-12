@@ -37,8 +37,7 @@ public class User extends BaseEntity{
     private String email;
 
     @Column(name = "gender")
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private Boolean gender;
 
     @Column(name = "avata")
     private String avata;

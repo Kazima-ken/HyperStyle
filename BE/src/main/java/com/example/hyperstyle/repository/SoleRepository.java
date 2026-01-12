@@ -23,18 +23,14 @@ public interface SoleRepository extends JpaRepository<Sole, String> {
             sol.created_by as createdBy
             from sole sol
                 where
-                (
-                    :#{#request.name} is null
-                    or :#{#request.name} = ''
-                    or sol.name like concat(:#{#request.name}, '%')
-                )
-            and
-                (
-                    :#{#request.status} is null
-                    or sol.status like :#{#request.status}
-                )
+                        (:name is null or :name = '' or sol.name like concat(:name, '%'))
+                    and
+                        (:status is null or sol.status = :status)
             """, nativeQuery = true)
-    List<SoleResponse> getAll(@Param("request") FindSoleRequest request);
+    List<SoleResponse> getAll(
+            @Param("name") String name,
+            @Param("status") String status
+    );
     
 
     Sole findByName(String name);

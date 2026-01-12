@@ -22,18 +22,14 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
             mate.created_by as createdBy
             from material mate
                 where
-                (
-                    :#{#request.name} is null
-                    or :#{#request.name} = ''
-                    or mate.name like concat(:#{#request.name}, '%')
-                )
-            and
-                (
-                    :#{#request.status} is null
-                    or mate.status like :#{#request.status}
-                )
+                    (:name is null or :name = '' or mate.name like concat(:name, '%'))
+                and
+                    (:status is null or mate.status = :status)
             """, nativeQuery = true)
-    List<MaterialResponse> getAll(@Param("request") GetMaterialRequest request);
+    List<MaterialResponse> getAll(
+            @Param("name") String name,
+            @Param("status") String status
+    );
 
 
     Material findByName(String name);

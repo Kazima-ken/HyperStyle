@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "product")
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)

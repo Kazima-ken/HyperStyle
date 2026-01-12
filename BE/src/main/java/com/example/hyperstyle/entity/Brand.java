@@ -27,6 +27,7 @@ public class Brand extends BaseEntity{
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
 
     @Column(name = "created_by")

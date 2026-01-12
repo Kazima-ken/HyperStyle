@@ -2,7 +2,11 @@ package com.example.hyperstyle.dto.request.address;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CreateAddressRequest {
 
     @NotBlank(message = "Vui Lòng Không Để Trống Tên Đường")
@@ -19,7 +23,7 @@ public class CreateAddressRequest {
 
     private Integer provinceId;
 
-    private Integer toDistrictId;
+    private Integer DistrictId;
 
     private String wardCode;
 

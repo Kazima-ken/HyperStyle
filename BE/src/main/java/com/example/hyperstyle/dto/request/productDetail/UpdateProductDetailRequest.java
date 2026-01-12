@@ -18,10 +18,6 @@ public class UpdateProductDetailRequest {
 
     private String id; // ID của ProductDetail (Lấy từ PathVariable cũng được, để đây cho chắc)
 
-    // --- CÁC KHÓA NGOẠI (Nếu muốn đổi màu/size/sản phẩm khác) ---
-    @NotBlank(message = "Sản phẩm không được để trống")
-    private String productId;
-
     @NotBlank(message = "Màu sắc không được để trống")
     private String colorId;
 

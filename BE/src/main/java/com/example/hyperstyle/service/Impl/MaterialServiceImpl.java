@@ -15,14 +15,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class MaterialServiceImpl implements MaterialService{
+public class MaterialServiceImpl implements MaterialService {
 
     @Autowired
     private MaterialRepository materialRepository;
 
     @Override
     public List<MaterialResponse> getAll(GetMaterialRequest request) {
-        return materialRepository.getAll(request);
+        return materialRepository.getAll(
+                request.getName(),
+                request.getStatus() == null ? null : request.getStatus().name()
+        );
     }
 
     @Override
@@ -66,5 +69,5 @@ public class MaterialServiceImpl implements MaterialService{
         materialRepository.delete(delete);
         return true;
     }
-    
+
 }

@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.example.hyperstyle.dto.request.image.ImageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
@@ -52,5 +53,21 @@ public class UploadImageToCloudinary {
                         .collect(Collectors.toList()));
     }
 
-    // ... Các hàm khác giữ nguyên ...
+    public String uploadImage(MultipartFile file) throws IOException {
+        // 1. Tạo ID ngẫu nhiên cho ảnh
+        String publicId = UUID.randomUUID().toString();
+
+        // 2. Thiết lập tham số upload
+        Map<String, Object> params = new HashMap<>();
+        params.put("public_id", publicId);
+        params.put("resource_type", "auto"); // Tự động nhận diện ảnh/video
+
+        // 3. Gọi Cloudinary upload
+        // Lưu ý: file.getBytes() có thể ném IOException, nên method này phải throws IOException
+        Map result = cloudinary.uploader().upload(file.getBytes(), params);
+
+        // 4. Trả về URL
+        return (String) result.get("url");
+    }
+
 }

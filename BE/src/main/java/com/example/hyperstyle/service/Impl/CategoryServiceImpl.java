@@ -22,7 +22,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> getAll(GetCategoryRequest request) {
-        return categoryRepository.getAll(request);
+        return categoryRepository.getAll(request.getName(),
+                request.getStatus() == null ? null : request.getStatus().name());
     }
 
     @Override

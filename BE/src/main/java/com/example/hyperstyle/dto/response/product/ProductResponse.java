@@ -41,5 +41,7 @@ public interface ProductResponse {
     @Value("#{target.totalQuantity}")
     Integer getTotalQuantity();
 
+    @Value("#{target.price}") // Tên 'price' phải khớp với tên cột/alias trong SQL của bạn
+    Double getPrice();
 
 }

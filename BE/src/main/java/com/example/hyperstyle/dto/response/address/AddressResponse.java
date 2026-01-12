@@ -12,6 +12,7 @@ public interface AddressResponse {
 
     @Value("#{target.id}")
     String getId();
+
     @Value("#{target.line}")
     String getLine();
 
@@ -27,4 +28,19 @@ public interface AddressResponse {
     @Value("#{target.status}")
     String getStatus();
 
+    // Hai trường này phải khớp tên với AS trong câu SQL
+    @Value("#{target.fullName}")
+    String getFullName();
+
+    @Value("#{target.phoneNumber}")
+    String getPhoneNumber();
+
+    @Value("#{target.districtId}")
+    Integer getDistrictId();
+
+    @Value("#{target.wardCode}")
+    String getWardCode();
+
+    @Value("#{target.idUser}")
+    String getIdUser(); // Thêm để khớp với SQL
 }

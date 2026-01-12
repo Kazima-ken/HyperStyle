@@ -28,7 +28,7 @@ public class BillHistory extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "id_employees",referencedColumnName = "id")
-    private Account emplayees;
+    private Account staff;
 
     @ManyToOne
     @JoinColumn(name = "id_bill",referencedColumnName = "id")
@@ -40,7 +40,7 @@ public class BillHistory extends BaseEntity{
     @Column(name = "created_date", updatable = false, insertable = false)
     private LocalDateTime createdDate;
 
-    @Column(name = "lastModifiedDate")
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
     private LocalDateTime lastModifiedDate;
 
     @Column(name = "created_by")
@@ -50,6 +50,7 @@ public class BillHistory extends BaseEntity{
     private String updatedBy;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="status_bill")
     private BillStatus billStatus;
 
 }

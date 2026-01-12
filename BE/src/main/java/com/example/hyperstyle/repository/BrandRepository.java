@@ -14,26 +14,23 @@ import java.util.List;
 public interface BrandRepository extends JpaRepository<Brand, String> {
 
     @Query(value = """
-            select
-                ROW_NUMBER() OVER (ORDER BY brand.id DESC) as stt,
-                brand.id as id,
-                brand.name as name,
-                brand.status as status,
-                brand.created_by as createdBy
-            from brand brand
-            where
-                (
-                    :#{#request.name} is null
-                    or :#{#request.name} = ''
-                    or brand.name like concat(:#{#request.name}, '%')
-                )
-            and
-                (
-                    :#{#request.status} is null
-                    or brand.status like :#{#request.status}
-                )
+                select
+                    ROW_NUMBER() OVER (ORDER BY brand.id DESC) as stt,
+                    brand.id as id,
+                    brand.name as name,
+                    brand.status as status,
+                    brand.created_by as createdBy
+                from brand brand
+                where
+                    (:name is null or :name = '' or brand.name like concat(:name, '%'))
+                and
+                    (:status is null or brand.status = :status)
+                group by brand.id
             """, nativeQuery = true)
-    List<BrandResponse> getAll(@Param("request") GetBrandRequest request);
+    List<BrandResponse> getAll(
+            @Param("name") String name,
+            @Param("status") String status
+    );
 
 
     Brand getByName(String name);

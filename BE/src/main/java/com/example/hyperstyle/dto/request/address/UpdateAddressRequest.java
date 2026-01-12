@@ -2,7 +2,12 @@ package com.example.hyperstyle.dto.request.address;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Getter
+@Setter
 public class UpdateAddressRequest {
 
     private String id;
@@ -21,7 +26,7 @@ public class UpdateAddressRequest {
 
     private Integer provinceId;
 
-    private Integer toDistrictId;
+    private Integer districtId;
 
     private String wardCode;
 

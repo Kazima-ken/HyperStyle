@@ -2,6 +2,7 @@ package com.example.hyperstyle.repository;
 
 import com.example.hyperstyle.dto.request.productDetail.GetProductDetailRequest;
 import com.example.hyperstyle.dto.response.productdetail.GetByProduct;
+import com.example.hyperstyle.dto.response.productdetail.GetByProductDetail;
 import com.example.hyperstyle.dto.response.productdetail.ProductDetailResponse;
 import com.example.hyperstyle.entity.ProductDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, String> {
@@ -125,11 +128,61 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, St
             """, nativeQuery = true)
     List<GetByProduct> getByIdProduct(@Param("id") String id);
 
+    @Query(value = """
+                SELECT
+                    detail.id AS id,
+                    prod.name AS nameProduct,
+                    detail.description AS description,
+                    detail.price AS price,
+                    detail.quantity AS quantity,
+                    detail.gender AS gender,
+                    detail.status AS status,
+                    detail.created_date AS created_date,
+                    
+                    prod.id_category AS idCategory,
+                    prod.id_material AS idMaterial,
+                    prod.id_sole AS idSole,
+                    prod.id_brand AS idBrand,
+                    detail.id_size AS idSize,
+                    detail.id_color AS idColor,
+                    
+                    ima.url AS image
+                           
+                FROM product_detail detail
+                JOIN product prod ON detail.id_product = prod.id
+                
+                LEFT JOIN size siz ON detail.id_size = siz.id
+                LEFT JOIN color col ON detail.id_color = col.id
+                
+
+                LEFT JOIN (
+                    SELECT id_product, MAX(id) AS max_image_id
+                    FROM image
+                    WHERE status = true
+                    GROUP BY id_product
+                ) max_images ON prod.id = max_images.id_product
+                LEFT JOIN image ima ON max_images.max_image_id = ima.id
+                
+                WHERE
+                    detail.id = :id
+                
+                GROUP BY 
+                    detail.id, prod.name, detail.description, detail.price, detail.quantity, 
+                    detail.gender, detail.status, detail.created_date,
+                    prod.id_category, prod.id_material, prod.id_sole, prod.id_brand,
+                    detail.id_size, detail.id_color, ima.url
+            """, nativeQuery = true)
+    Optional<GetByProductDetail> getByIdProductDetail(@Param("id") String id);
+
     List<ProductDetail> findAllByProductId(String productId);
 
     boolean existsByProductIdAndSizeIdAndColorId(String productId, String sizeId, String colorId);
 
     boolean existsByProductIdAndSizeIdAndColorIdAndIdNot(String productId, String sizeId, String colorId, String id);
 
+
+
+    @Query("SELECT pd FROM ProductDetail pd WHERE pd.product.id = :productId")
+    List<ProductDetail> getAllByProductId(@Param("productId") String productId);
 
 }

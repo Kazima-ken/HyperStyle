@@ -4,6 +4,8 @@ import com.example.hyperstyle.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.Date;
+
 @Projection(types = User.class)
 public interface UserResponse {
 
@@ -26,7 +28,7 @@ public interface UserResponse {
     String getStatus();
 
     @Value("#{target.dateOfBirth}")
-    Long getDateOfBirth();
+    Date getDateOfBirth();
 
     @Value("#{target.fullName}")
     String getFullName();

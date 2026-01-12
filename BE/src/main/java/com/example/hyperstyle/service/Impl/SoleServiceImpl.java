@@ -23,7 +23,10 @@ public class SoleServiceImpl implements SoleService {
 
     @Override
     public List<SoleResponse> getAll(FindSoleRequest request) {
-        return soleRepository.getAll(request);
+        return soleRepository.getAll(
+                request.getName(),
+                request.getStatus() == null ? null : request.getStatus().name()
+        );
     }
 
     @Override
@@ -68,5 +71,5 @@ public class SoleServiceImpl implements SoleService {
         soleRepository.delete(delete);
         return true;
     }
-    
+
 }

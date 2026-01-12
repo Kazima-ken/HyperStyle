@@ -36,23 +36,23 @@ public class ManagementController {
 
     // --- API CHO KHÁCH HÀNG (ROLE_USER) ---
 
-    @GetMapping("/customers") // READ DS Khách hàng
-    public ResponseEntity<?> getCustomers() {
-        return ResponseEntity.ok(accountServiceClass.getAllByRoles(Roles.ROLE_USER));
-    }
-
-    @PostMapping("/customers") // CREATE Khách hàng
-    public ResponseEntity<?> createCustomer(@RequestBody AccountRequest request) {
-        return ResponseEntity.ok(accountServiceClass.createAccount(request, Roles.ROLE_USER));
-    }
-
-    // --- API UPDATE CHUNG CHO CẢ NHÂN VIÊN VÀ KHÁCH HÀNG ---
-
-    @PutMapping("/accounts/{id}")
-    public ResponseEntity<?> updateAccountInfo(@PathVariable String id, @RequestBody AccountRequest request) {
-        // Cập nhật thông tin cá nhân (tên, sđt, ngày sinh...)
-        return ResponseEntity.ok(accountServiceClass.updateAccount(id, request));
-    }
+//    @GetMapping("/customers") // READ DS Khách hàng
+//    public ResponseEntity<?> getCustomers() {
+//        return ResponseEntity.ok(accountServiceClass.getAllByRoles(Roles.ROLE_USER));
+//    }
+//
+//    @PostMapping("/customers") // CREATE Khách hàng
+//    public ResponseEntity<?> createCustomer(@RequestBody AccountRequest request) {
+//        return ResponseEntity.ok(accountServiceClass.createAccount(request, Roles.ROLE_USER));
+//    }
+//
+//    // --- API UPDATE CHUNG CHO CẢ NHÂN VIÊN VÀ KHÁCH HÀNG ---
+//
+//    @PutMapping("/accounts/{id}")
+//    public ResponseEntity<?> updateAccountInfo(@PathVariable String id, @RequestBody AccountRequest request) {
+//        // Cập nhật thông tin cá nhân (tên, sđt, ngày sinh...)
+//        return ResponseEntity.ok(accountServiceClass.updateAccount(id, request));
+//    }
 
     // --- CHI TIẾT HÓA ĐƠN --- (Sẽ code ở phần 3)
 }

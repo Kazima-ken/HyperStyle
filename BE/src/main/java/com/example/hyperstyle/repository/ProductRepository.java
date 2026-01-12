@@ -22,6 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
                 p.name AS nameProduct,
                 p.code AS code,                
                 p.status AS status,
+                MIN(pd.price) as price,
                 b.name AS nameBrand,    
                 c.name AS nameCategory,  
                 s.name AS nameSole,       
@@ -63,62 +64,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query(value = "SELECT p.name FROM product p WHERE (:name IS NULL OR :name = '' OR p.name LIKE CONCAT('%', :name, '%'))", nativeQuery = true)
     List<String> getAllByName(@Param("name") String name);
 
-
-    @Query(value = """
-            SELECT
-               ROW_NUMBER() OVER (ORDER BY detail.last_modified_date DESC) AS stt,
-               detail.id AS id,
-               i.name AS image,
-               CONCAT(p.name, ' [ ', s2.name, ' - ', c2.name, ' ]') AS nameProduct,
-               detail.price AS price,
-               detail.created_date AS createdDate,
-               detail.gender AS gender,
-               detail.status AS status,
-               si.name AS nameSize,
-               c.name AS nameCategory,
-               b.name AS nameBrand,
-               detail.quantity AS quanity,
-               (SELECT MAX(pr.value)
-                   FROM promotion_product_detail ppd
-                   JOIN promotion pr ON ppd.id_promotion = pr.id
-                   WHERE ppd.id_product_detail = detail.id 
-                   AND ppd.status = 'DANG_SU_DUNG' 
-                   AND pr.status = 'DANG_KICH_HOAT') AS promotion,
-               s2.name AS size,
-               c2.code AS color,
-               detail.maqr AS QRCode
-            FROM product_detail detail
-            JOIN product p ON detail.id_product = p.id
-            -- Lấy các thuộc tính từ bảng Product theo Schema của bạn
-            JOIN category c ON p.id_category = c.id
-            JOIN brand b ON p.id_brand = b.id
-            JOIN material m ON p.id_material = m.id
-            JOIN sole s ON p.id_sole = s.id
-            -- Lấy các thuộc tính biến thể từ ProductDetail
-            JOIN size s2 ON detail.id_size = s2.id
-            JOIN color c2 ON detail.id_color = c2.id
-            LEFT JOIN size si ON detail.id_size = si.id
-            -- Lấy ảnh đại diện (giả sử có bảng image)
-            LEFT JOIN (
-                SELECT id_product_detail, MAX(name) AS name 
-                FROM image GROUP BY id_product_detail
-            ) i ON detail.id = i.id_product_detail
-            WHERE (:#{#request.product} IS NULL OR :#{#request.product} = '' 
-                   OR p.name LIKE CONCAT('%', :#{#request.product}, '%'))
-            AND (:#{#request.brand} IS NULL OR :#{#request.brand} = '' 
-                   OR b.name LIKE CONCAT('%', :#{#request.brand}, '%'))
-            AND (:#{#request.status} IS NULL OR :#{#request.status} = '' 
-                   OR detail.status = :#{#request.status})
-            AND (:#{#request.gender} IS NULL OR :#{#request.gender} = '' 
-                   OR detail.gender = :#{#request.gender})
-            AND (:#{#request.minPrice} IS NULL OR detail.price >= :#{#request.minPrice}) 
-            AND (:#{#request.maxPrice} IS NULL OR detail.price <= :#{#request.maxPrice})
-            GROUP BY 
-                detail.id, i.name, p.name, s2.name, c2.name, detail.price, 
-                detail.created_date, detail.gender, detail.status, si.name, 
-                c.name, b.name, detail.quantity, c2.code, detail.maqr, detail.last_modified_date
-            ORDER BY detail.last_modified_date DESC 
-            """, nativeQuery = true)
-    List<ProductDetailResponse> getAllProduct(@Param("request") GetProductDetailRequest request);
 }
 

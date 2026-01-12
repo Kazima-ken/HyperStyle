@@ -22,18 +22,12 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
             cate.created_by as createdBy
             from category cate
                 where
-                (
-                    :#{#request.name} is null
-                    or :#{#request.name} = ''
-                    or cate.name like concat(:#{#request.name}, '%')
-                )
-            and
-                (
-                    :#{#request.status} is null
-                    or cate.status like :#{#request.status}
-                )
+                    (:name is null or :name = '' or cate.name like concat(:name, '%'))
+                and
+                    (:status is null or cate.status = :status)
             """, nativeQuery = true)
-    List<CategoryResponse> getAll(@Param("request") GetCategoryRequest request);
+    List<CategoryResponse> getAll(@Param("name") String name,
+                                  @Param("status") String status);
 
     @Query("""
                 SELECT cate FROM Category cate 

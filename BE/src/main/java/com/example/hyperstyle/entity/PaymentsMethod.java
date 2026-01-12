@@ -22,22 +22,22 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@ToString
 @Builder
 @Table(name = "payments_method")
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentsMethod extends BaseEntity{
+public class PaymentsMethod extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "id_bill",referencedColumnName = "id")
+    @JoinColumn(name = "id_bill")
     private Bill bill;
 
     @ManyToOne
-    @JoinColumn(name = "id_employees",referencedColumnName = "id")
+    @JoinColumn(name = "id_employees")
     private Account employees;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "method")
     private Method method;
 
     @Column(name = "description")
@@ -49,14 +49,13 @@ public class PaymentsMethod extends BaseEntity{
     @Column(name = "vnp_transaction")
     private String vnpTransaction;
 
-    @Column(name = "created_date")
-    private Date createdDate;
-
     @Column(name = "created_by")
-    private String createdBy ;
+    private String createdBy;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PaymentStatus paymentStatus;
 
-
+    @Column(name = "created_date", insertable = false, updatable = false) // Thường created_date DB tự sinh
+    private Date createdDate;
 }

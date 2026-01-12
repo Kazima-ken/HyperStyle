@@ -34,7 +34,7 @@ public class Bill extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_employees", referencedColumnName = "id")
-    private Account employees;
+    private Account staff;
 
     @ManyToOne
     @JoinColumn(name = "id_voucher", referencedColumnName = "id")
@@ -50,7 +50,7 @@ public class Bill extends BaseEntity {
     private String address;
 
     @Column(name = "user_name")
-    private String userUame;
+    private String userName;
 
     @Column(name = "email")
     private String email;
@@ -101,6 +101,7 @@ public class Bill extends BaseEntity {
     private String createBy;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="status_bill")
     private BillStatus billStatus;
 
 }

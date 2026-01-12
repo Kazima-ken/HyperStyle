@@ -9,8 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import com.example.hyperstyle.infrastructure.sercurity.config.AccountDetalsService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpMethod;
@@ -19,14 +17,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import org.springframework.web.cors.CorsConfiguration;
@@ -55,7 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/admin/product-detail").permitAll()
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -100,25 +92,6 @@ public class SecurityConfig {
         return source;
     }
 
-    /**
-     * Cấu hình Security Filter Chain.
-     * CẤU HÌNH TẠM THỜI: Tắt CSRF và cho phép MỌI request truy cập công khai
-     * để bạn có thể test các API bằng Postman mà không cần đăng nhập.
-     */
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                // 1. Vô hiệu hóa CSRF (Cần thiết cho REST API trừ khi bạn sử dụng session)
-//                .csrf(AbstractHttpConfigurer::disable)
-//
-//                // 2. Cấu hình ủy quyền cho HTTP Requests
-//                .authorizeHttpRequests(auth -> auth
-//                        // Cho phép tất cả các request truy cập công khai (DÙNG ĐỂ TEST)
-//                        .anyRequest().permitAll()
-//                );
-//
-//        return http.build();
-//    }
 }
 
 

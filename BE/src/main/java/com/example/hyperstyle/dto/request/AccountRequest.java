@@ -31,7 +31,7 @@ public class AccountRequest {
     private Date dateOfBirth;
 
     @NotNull(message = "Giới tính không được để trống")
-    private Gender gender;
+    private Boolean gender;
 
     private String cccd;
     private String avata;
