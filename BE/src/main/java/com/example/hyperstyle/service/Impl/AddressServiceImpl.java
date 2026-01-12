@@ -58,11 +58,17 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address getAddressByUserIdAndStatus(String id, Status status) {
-        User user = userRepository.findById(id).orElseThrow(throw  RestApiException("user null"));
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RestApiException("User không tồn tại"));
+
         Address address = addressRepository.getAddressByUserIdAndStatus(user.getId(), status);
+
         if (address == null) {
             throw new RestApiException("Không có địa chỉ mặc định");
         }
+
         return address;
     }
+
 }
