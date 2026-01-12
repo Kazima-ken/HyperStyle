@@ -1,0 +1,82 @@
+/* Container */
+.tab-bills-container {
+    position: relative;
+    padding-bottom: 60px;
+    /* Chừa chỗ cho thanh tác vụ */
+}
+
+/* Custom Table Styles */
+.custom-table .ant-table-thead>tr>th {
+    background: #f8f9fa !important;
+    font-weight: 600;
+    border-bottom: 2px solid #eee;
+}
+
+.custom-table .ant-table-tbody>tr>td {
+    padding: 12px 16px;
+}
+
+.custom-table .ant-table-row:hover {
+    cursor: pointer;
+    background-color: #f0f7ff !important;
+    /* Màu hover xanh nhạt */
+}
+
+/* Floating Bulk Action Bar */
+.bulk-action-bar {
+    position: fixed;
+    bottom: -100px;
+    /* Ẩn xuống dưới màn hình */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    /* Không chiếm hết màn hình, tạo cảm giác nổi */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    border-radius: 50px;
+    /* Bo tròn mạnh */
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+        0 3px 6px -4px rgba(0, 0, 0, 0.12),
+        0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    /* Hiệu ứng nảy */
+    z-index: 1000;
+    border: 1px solid #f0f0f0;
+}
+
+.bulk-action-bar.visible {
+    bottom: 40px;
+    /* Trượt lên vị trí hiển thị */
+}
+
+.selected-count {
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Button Styles trong Action Bar */
+.btn-action-status {
+    background: linear-gradient(90deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.35);
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.btn-action-employee {
+    border-radius: 20px;
+    border-color: #d9d9d9;
+    color: #595959;
+}
+
+.btn-action-employee:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+}

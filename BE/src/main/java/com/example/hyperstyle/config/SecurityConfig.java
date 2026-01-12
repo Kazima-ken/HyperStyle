@@ -46,7 +46,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // thêm dòng này
-                                .requestMatchers("/public/**").permitAll()
+                                .requestMatchers("/public/**",
+                                        "/api/voucher/**",
+                                        "/api/products/**",
+                                        "/api/auth/login",
+                                        "/api/auth/signup").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -55,6 +59,17 @@ public class SecurityConfig {
         );
         return http.build();
     }
+
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll()
+//                );
+//
+//        return http.build();
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

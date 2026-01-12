@@ -1,50 +1,51 @@
 import { jwtDecode } from "jwt-decode";
-import { getCookie, setCookie } from "./CookiesRequest";
-
-export const getTokenCustomer = () => getCookie("customerToken");
-export const getTokenEmpoloyee = () => getCookie("userToken");
 
 
-export const setToken = (token) => {
-    const decodedToken = jwtDecode(token);
-    const user = {
-        id: decodedToken.id,
-        email: decodedToken.email,
-        role: decodedToken.role,
-        fullName: decodedToken.fullName,
-        avata: decodedToken.avata,
-        expirationTime: new Date(decodedToken.exp * 1000),
-    };
-    const cookieName = user.role === "ROLE_USER" ? "customerToken" : "userToken";
-    setCookie(cookieName, token, 1);
+import { getCookie, setCookie, deleteCookie } from "./CookiesRequest";
+
+// Lấy access token
+export const getAccessToken = () => getCookie("accessToken");
+
+// Lấy refresh token
+export const getRefreshToken = () => getCookie("refreshToken");
+// Lưu access token
+export const setAccessToken = (token) => {
+    if (token) setCookie("accessToken", token, 1); // 1 ngày
+};
+
+// Lưu refresh token
+export const setRefreshToken = (token) => {
+    if (token) setCookie("refreshToken", token, 7); // 7 ngày
+};
+
+// Lưu user info decode từ access token
+export const saveUserFromToken = (token) => {
+    if (!token || typeof token !== "string" || token.split(".").length !== 3) return;
+
+    try {
+        const decoded = jwtDecode(token);
+        const user = {
+            id: decoded.id,
+            email: decoded.email,
+            role: decoded.roles,
+            fullName: decoded.fullName,
+            avatar: decoded.avata,
+            exp: decoded.exp * 1000,
+        };
+        setCookie("userInfo", JSON.stringify(user), 1);
+    } catch (e) {
+        console.error("saveUserFromToken error:", e);
+    }
 };
 
 
-export const deleteToken = () => {
-    setCookie("customerToken1", "", 1);
-    setCookie("customerToken", "", 1);
+// Xóa toàn bộ token và user info
+export const clearAuth = () => {
+    deleteCookie("accessToken");
+    deleteCookie("refreshToken");
+    deleteCookie("userInfo");
 };
 
-export const setUserToken = (token) => {
-    const decodedToken = jwtDecode(token);
-    const user = {
-        id: decodedToken.id,
-        email: decodedToken.email,
-        role: decodedToken.role,
-        fullName: decodedToken.fullName,
-        avata: decodedToken.avata,
-        expirationTime: new Date(decodedToken.exp * 1000),
-    };
-    const cookieName =
-        user.role === "ROLE_USER" ? "customerToken1" : "userToken1";
-    setCookie(cookieName, token, 1);
-};
-
-export const getUserToken = () => {
-    return getCookie("userToken1") || getCookie("customerToken1") || "";
-};
-
-export const deleteUserToken = () => {
-    setCookie("userToken", "", 1);
-    setCookie("userToken1", "", 1);
-};
+export const clearAccessToken = () => {
+    deleteCookie("accessToken");
+}

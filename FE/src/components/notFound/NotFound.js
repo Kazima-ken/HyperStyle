@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import robot from "../../assets/robot.png";
+import robot from "../../image/robot.png";
 
 export default function NotFound() {
     const navigate = useNavigate();

@@ -1,0 +1,88 @@
+/* Background chung mềm mại hơn */
+.dashboard-container {
+    padding: 24px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+    box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+}
+
+/* Statistic Cards */
+.stats-row {
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    /* Chuẩn bị cho hover */
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Màu viền trái tương ứng khi hover (Optional - cần logic JS để map class, ở đây demo chung) */
+.stat-card:hover {
+    border-left-color: #1890ff;
+}
+
+/* Main Content */
+.main-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.table-toolbar {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+    /* Đẩy thanh tìm kiếm sang phải */
+}
+
+/* Tabs hiện đại, loại bỏ khung viền thô */
+.modern-tabs .ant-tabs-nav::before {
+    border-bottom: none !important;
+}
+
+.modern-tabs .ant-tabs-tab {
+    padding: 12px 16px !important;
+    font-size: 15px;
+    transition: all 0.3s;
+    border-radius: 8px !important;
+    margin: 0 4px !important;
+    border: none !important;
+    /* Xóa viền của card tab cũ */
+    background: transparent !important;
+}
+
+.modern-tabs .ant-tabs-tab-active {
+    background: #e6f7ff !important;
+    /* Nền xanh nhạt khi active */
+    color: #1890ff !important;
+    font-weight: 600;
+}
+
+.modern-tabs .ant-tabs-ink-bar {
+    display: none !important;
+    /* Ẩn thanh gạch chân nếu dùng style pills */
+}

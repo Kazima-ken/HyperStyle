@@ -3,18 +3,22 @@ import {
     FacebookOutlined, InstagramOutlined, TwitterOutlined, YoutubeOutlined, EnvironmentOutlined,
     FileSearchOutlined, ShoppingCartOutlined, UserOutlined,
 } from "@ant-design/icons";
-import { Col, Row, Badge, Menu } from "antd";
+import { useCart } from "../../components/custonmer/cart/CartService";
+import { Col, Row, Badge, message, Menu } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import "./dash-Board-Customer.css";
-import logo from "./../../assets/logo_banner_2.png";
-import { deleteToken } from "../../config/Cookies";
+import logo from "./../../image/logo_banner_2.png";
+
+import { clearAuth } from "../../config/Cookies";
 
 const DashBoardCustomer = ({ children }) => {
     const [showHeaderMenu, setShowHeaderMenu] = useState(false);
-    const idUser = sessionStorage.getItem("idAccount");
+    const idAccount = sessionStorage.getItem("idAccount");
     const [openInfor, setOpenInfo] = useState(false);
     const [isOptionVisible, setOptionVisible] = useState(false);
     const [activeField, setActiveField] = useState("");
+    const navigate = useNavigate();
+    const { totalQuantity } = useCart();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -57,11 +61,12 @@ const DashBoardCustomer = ({ children }) => {
     };
 
     const logout = () => {
-        deleteToken();
+        clearAuth();
         sessionStorage.removeItem("idAccount");
-        window.location.href = "/home";
+        message.success("Đăng xuất thành công");
+        navigate("/home");
     };
-
+    console.log("idAccount:", idAccount);
     const handleLeave = () => {
         setOptionVisible(false);
         setActiveField("");
@@ -125,9 +130,12 @@ const DashBoardCustomer = ({ children }) => {
                         </Link>
                     </div>
                     <div className="content-header-home">
-                        <Link to="/#" className="title-header">
-                            <Badge>
-                                <span className="header-icon"><ShoppingCartOutlined />  Giỏ hàng</span>
+                        <Link to="/cart" className="title-header">
+                            {/* Cập nhật Badge ở đây */}
+                            <Badge count={totalQuantity} showZero size="small">
+                                <span className="header-icon">
+                                    <ShoppingCartOutlined />  Giỏ hàng
+                                </span>
                             </Badge>
                         </Link>
                     </div>
@@ -137,15 +145,15 @@ const DashBoardCustomer = ({ children }) => {
                         onMouseLeave={handleMenuLeave}
                     >
                         <Link
-                            to={idUser === null ? "/login" : "#"}
+                            to={idAccount === null ? "/login" : "#"}
                             className="title-header-account"
                         >
                             <span className="header-icon">
                                 <UserOutlined />
                             </span>{" "}
-                            {idUser === null ? "Đăng nhập" : "Thông tin"}
+                            {idAccount === null ? "Đăng nhập" : "Thông tin"}
                         </Link>
-                        {openInfor && idUser !== null ? (
+                        {openInfor && idAccount !== null ? (
                             <ul className="dropdown-list">
                                 <li className="dropdown-item" onClick={() => nav("/profile")}>
                                     Tài khoản của tôi
@@ -162,7 +170,6 @@ const DashBoardCustomer = ({ children }) => {
                         )}
                     </div>
                 </div>
-                {/* <SalesHeader /> */}
             </div>
             <div>{children}</div>
             <div>

@@ -1,0 +1,107 @@
+.payment-acc-container {
+    background-color: #f8f9fa;
+    padding: 40px 0;
+    min-height: 100vh;
+}
+
+.payment-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border: 1px solid #ececec;
+}
+
+.payment-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    color: #262626;
+    border-left: 4px solid #ff4400;
+    padding-left: 12px;
+}
+
+/* Địa chỉ */
+.address-box {
+    padding: 15px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 8px;
+    position: relative;
+    background: #fafafa;
+}
+
+.change-btn {
+    color: #ff4400;
+    cursor: pointer;
+    font-weight: 500;
+    float: right;
+}
+
+/* Sản phẩm */
+.product-item-new {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.product-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+/* Phương thức thanh toán */
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.method-item {
+    border: 2px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    position: relative;
+}
+
+.method-item.active {
+    border-color: #ff4400;
+    background-color: #fffaf9;
+}
+
+/* Tổng kết tiền */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #595959;
+}
+
+.total-final {
+    font-size: 24px;
+    color: #ff4400;
+    font-weight: 800;
+}
+
+.btn-order-now {
+    width: 100%;
+    height: 50px;
+    background: #ff4400;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 14px rgba(255, 68, 0, 0.3);
+}

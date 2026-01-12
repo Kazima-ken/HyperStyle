@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
+import { Form, Input, Button, Card, Typography, message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { LoginService } from "../../../services/LoginService";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import "./Signup.css"
 import { LockOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
 
@@ -71,7 +71,7 @@ function Signup() {
         console.log("DATA GUI LEN:", formLogin);
         LoginService.SignupAccountService(formLogin)
             .then((res) => {
-                toast.success("Đăng ký thành công");
+                message.success("Đăng ký thành công");
                 navigate("/login");
             })
             .catch((err) => {

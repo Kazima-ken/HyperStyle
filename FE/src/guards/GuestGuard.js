@@ -1,10 +1,31 @@
-const GuestGuard = ({ children }) => {
-    // để check những màn hình k cần đăng nhập
-    // Token có hay ko => Nếu ko thì cho phép vào trang
-    //  Token có , 2 TH: hết hạn, còn hạn. Nếu còn hạn thì về trang chủ k cho đăng nhập
-    // Nếu hết hạn thì cho phép ở lại children
+import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { getCookie } from "../config/CookiesRequest";
 
-    return children;
+const GuestGuard = ({ children, requiredRole }) => {
+
+        const token = getCookie("accessToken");
+
+    if (!token) {
+        return children;
+    }
+
+    try {
+        const user = jwtDecode(token);
+        const userRoles = user.roles || [];
+
+        if (user.exp * 1000 < Date.now()) {
+            sessionStorage.removeItem("accessToken");
+            return children;
+        } else if (requiredRole === "ROLE_ADMIN") {
+            return <Navigate to="/dashboard" replace />;
+        }
+
+        return <Navigate to="/home" replace />;
+    } catch (error) {
+        sessionStorage.removeItem("accessToken");
+        return children;
+    }
 };
 
 export default GuestGuard;

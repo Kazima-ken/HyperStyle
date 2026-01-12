@@ -1,0 +1,79 @@
+.timeline-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Base step */
+.step {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+/* Step number */
+.step-index {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #d9d9d9;
+  color: #333;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  font-size: 18px;
+}
+
+/* Content */
+.step-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.step-time {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* DONE */
+.step.done {
+  background: #f6ffed;
+}
+
+.step.done .step-index {
+  background: #52c41a;
+  color: #fff;
+}
+
+/* ACTIVE */
+.step.active {
+  background: #e6f4ff;
+  border: 2px solid #1890ff;
+  box-shadow: 0 4px 12px rgba(24,144,255,0.2);
+}
+
+.step.active .step-index {
+  background: #1890ff;
+  color: #fff;
+}
+
+/* DANGER */
+.step.danger {
+  background: #fff1f0;
+}
+
+.step.danger .step-index {
+  background: #ff4d4f;
+  color: #fff;
+}

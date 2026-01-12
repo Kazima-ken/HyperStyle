@@ -1,0 +1,213 @@
+/* --- CONTAINER CHÍNH --- */
+.product-detail-container {
+    max-width: 1140px;
+    /* Độ rộng chuẩn web */
+    margin: 0 auto;
+    /* Căn giữa màn hình */
+    padding: 40px 20px;
+    background-color: #fff;
+    min-height: 100vh;
+}
+
+/* --- CỘT ẢNH (TRÁI) --- */
+.img-main-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    padding: 20px;
+    background: #f9f9f9;
+    /* Nền xám nhẹ sau lưng ảnh */
+    margin-bottom: 20px;
+    height: 100%;
+    /* Đảm bảo chiều cao bằng cột bên phải */
+    min-height: 450px;
+}
+
+.img-detail-product-pd {
+    max-width: 100%;
+    max-height: 450px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    /* Giúp ảnh hòa vào nền nếu ảnh có nền trắng */
+    transition: transform 0.3s ease;
+}
+
+.img-detail-product-pd:hover {
+    transform: scale(1.05);
+}
+
+/* --- CỘT THÔNG TIN (PHẢI) --- */
+.product-info-wrapper {
+    padding-left: 40px;
+    /* Khoảng cách giữa ảnh và thông tin */
+    text-align: left;
+    /* Căn trái toàn bộ nội dung */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.product-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.product-meta {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+/* --- GIÁ TIỀN --- */
+.price-box {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+}
+
+.current-price {
+    font-size: 26px;
+    font-weight: 700;
+    color: #d32f2f;
+    /* Màu đỏ nổi bật */
+}
+
+.old-price {
+    font-size: 18px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+/* --- LABELS (Tiêu đề nhỏ: Màu sắc, Kích thước, Số lượng) --- */
+.option-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 10px;
+    /* Cách ô chọn ra một chút */
+    display: block;
+}
+
+/* --- CHỌN MÀU (Dạng ô vuông) --- */
+.color-option-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Cho phép xuống dòng nếu nhiều màu */
+    gap: 10px;
+    /* Khoảng cách giữa các ô */
+    margin-top: 5px;
+    justify-content: flex-start;
+    /* Căn trái các ô màu */
+}
+
+.color-box-display {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    /* Bo góc nhẹ */
+    cursor: pointer;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.2s;
+}
+
+.color-box-display:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.color-box-display.selected {
+    border: 2px solid #000;
+    /* Viền đen đậm khi đang chọn */
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+/* --- CHỌN SIZE (Dạng ô vuông) --- */
+.size-option-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    justify-content: flex-start;
+    /* Căn trái các ô size */
+}
+
+.btn-size-custom {
+    min-width: 60px;
+    height: 40px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-size-custom:hover {
+    border-color: #000;
+    color: #000;
+}
+
+.btn-size-custom.selected {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.btn-size-custom.disabled {
+    background-color: #f5f5f5;
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+
+/* --- NÚT MUA HÀNG --- */
+.btn-add-cart {
+    height: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 6px;
+    background-color: #1890ff;
+    /* Xanh Ant Design */
+    width: 100%;
+    /* Nút rộng full */
+    max-width: 400px;
+    /* Giới hạn chiều rộng tối đa */
+}
+
+.btn-add-cart:hover {
+    background-color: #40a9ff;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
+    .product-info-wrapper {
+        padding-left: 0;
+        margin-top: 30px;
+    }
+
+    .img-main-wrapper {
+        min-height: auto;
+        padding: 10px;
+    }
+
+    .product-title {
+        font-size: 24px;
+    }
+}

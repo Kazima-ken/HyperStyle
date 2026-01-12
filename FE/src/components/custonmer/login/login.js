@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
+import { Form, Input, Button, Card, Typography, message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { LoginService } from "../../../services/LoginService";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import { jwtDecode } from "jwt-decode";
-import { setToken, setUserToken } from "../../../config/Cookies";
+import { saveUserFromToken, setAccessToken, setRefreshToken, clearAccessToken } from "../../../config/Cookies";
 import "./Login.css"
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
@@ -35,6 +35,7 @@ function Login() {
 
     const navigate = useNavigate();
     const onfinish = (form) => {
+        clearAccessToken();
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         const isFormValid =
             form.password && form.email && emailPattern.test(form.email);
@@ -52,18 +53,40 @@ function Login() {
             return;
         }
         LoginService.loginAccountService(form)
-            .then((res) => {
-                toast.success("Đăng nhập thành công");
-                console.log(res.data);
-                setToken(res.data.token);
-                setUserToken(res.data.token);
-                sessionStorage.setItem("idAccount", jwtDecode(res.data.token).id);
-                console.log(jwtDecode(res.data.token));
+            .then(res => {
+                console.log("Login response:", res.data);
+
+                const accessToken = res.data.accessToken || res.data.token;
+                const refreshToken = res.data.refreshToken;
+                // Lấy trực tiếp idAccount từ response body mà BE trả về
+                const idAccount = res.data.idAccount;
+
+                if (!accessToken) {
+                    message.error("Access token không tồn tại");
+                    return;
+                }
+
+                setAccessToken(accessToken);
+                setRefreshToken(refreshToken);
+                saveUserFromToken(accessToken);
+
+                if (idAccount) {
+                    sessionStorage.setItem("idAccount", idAccount);
+                } else {
+                    console.error("Backend không trả về idAccount!");
+                }
+
+                message.success("Đăng nhập thành công");
                 navigate("/home");
             })
-            .catch((err) => {
+            .catch(err => {
                 console.log(err);
+                message.error("Đăng nhập thất bại");
             });
+
+
+
+
     };
 
     return (
