@@ -1,5 +1,6 @@
 package com.example.hyperstyle.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -18,6 +19,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "image")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Image extends BaseEntity{
 
     @ManyToOne

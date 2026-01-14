@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Input, Select, Button, Form, Popconfirm } from "antd";
+import { Drawer, Input, Select, Button, Form, Space, Row, Col, Divider, message } from "antd";
+import { UserOutlined, PhoneOutlined, HomeOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../../../../app/Hook";
-import { toast } from "react-toastify";
 
-import { CreateAddress } from "../../../../app/reducer/AddressReducer";
 import { AddressApi } from "../../../../api/admin/address/addressApi";
+import { CreateAddress } from "../../../../app/reducer/AddressReducer";
 
 const { Option } = Select;
 
@@ -13,216 +13,255 @@ const ModalCreateAddress = ({ visible, onCancel, id }) => {
   const [listProvince, setListProvince] = useState([]);
   const [listDistricts, setListDistricts] = useState([]);
   const [listWard, setListWard] = useState([]);
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-  // Trong hàm handleOk, chúng ta gọi form.validateFields() để kiểm tra và lấy giá trị
-  // hàm onCreate để xử lý dữ liệu
-  const handleOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        form.setFieldsValue({ userId: id });
-        return new Promise((resolve, reject) => {
-          Modal.confirm({
-            title: "Xác nhận",
-            content: "Bạn có đồng ý thêm không?",
-            okText: "Đồng ý",
-            cancelText: "Hủy",
-            onOk: () => resolve(values),
-            onCancel: () => reject(),
-          });
-        });
-      })
-      .then((values) => {
-        AddressApi.create(values)
-          .then((res) => {
-            dispatch(CreateAddress(res.data.data));
-            toast.success("Thêm thành công");
-            onCancel();
-            form.resetFields();
-          })
-          .catch((error) => {
-            toast.error(error.response.data.message);
-            console.log("Create failed:", error);
-          });
-      })
-      .catch(() => { });
+  // Hàm xử lý lưu địa chỉ
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+
+      const idAccount = sessionStorage.getItem("idAccount");
+
+      if (!idAccount) {
+        message.error("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại!");
+        return;
+      }
+
+      // Tạo payload chuẩn để gửi về Backend của bạn
+      const payload = {
+        ...values,
+        userId: idAccount, // Đảm bảo lấy ID từ props truyền vào
+        status: "DANG_SU_DUNG"
+      };
+
+      const res = await AddressApi.createByAccount(payload);
+
+      // Kiểm tra phản hồi từ API
+      if (res.status === 200 || res.status === 201) {
+        dispatch(CreateAddress(res.data.data));
+        message.success("Thêm địa chỉ mới thành công!");
+        handleCancel();
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm địa chỉ:", error);
+      const errorMsg = error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!";
+      message.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setListDistricts([]);
+    setListWard([]);
     onCancel();
   };
 
+  // API Calls - Lấy danh sách Tỉnh/Thành
   const loadDataProvince = () => {
-    AddressApi.getAllProvince().then(
-      (res) => {
-        setListProvince(res.data.data);
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
+    AddressApi.getAllProvince()
+      .then((res) => setListProvince(res.data.data))
+      .catch((err) => console.error("Lỗi load tỉnh:", err));
   };
 
-  const handleProvinceChange = (value, valueProvince) => {
-    form.setFieldsValue({ provinceId: valueProvince.valueProvince });
-    AddressApi.getAllProvinceDistricts(
-      valueProvince.valueProvince
-    ).then((res) => {
-      setListDistricts(res.data.data);
+  // Khi chọn Tỉnh/Thành
+  const handleProvinceChange = (value, option) => {
+    // Lưu ID tỉnh vào field ẩn, reset huyện và xã
+    form.setFieldsValue({
+      provinceId: option.valueProvince,
+      district: undefined,
+      ward: undefined,
+      districtId: undefined,
+      wardCode: undefined
     });
+
+    setListDistricts([]);
+    setListWard([]);
+
+    AddressApi.getAllProvinceDistricts(option.valueProvince)
+      .then((res) => {
+        setListDistricts(res.data.data || []);
+      })
+      .catch(() => setListDistricts([]));
   };
 
-  const handleDistrictChange = (value, valueDistrict) => {
-    form.setFieldsValue({ toDistrictId: valueDistrict.valueDistrict });
-    AddressApi.getAllProvinceWard(valueDistrict.valueDistrict).then(
-      (res) => {
-        setListWard(res.data.data);
-      }
-    );
+  // Khi chọn Quận/Huyện
+  const handleDistrictChange = (value, option) => {
+    // Lưu ID huyện vào field ẩn, reset xã
+    form.setFieldsValue({
+      districtId: option.valueDistrict,
+      ward: undefined,
+      wardCode: undefined
+    });
+
+    setListWard([]);
+
+    AddressApi.getAllProvinceWard(option.valueDistrict)
+      .then((res) => {
+        setListWard(res.data.data || []);
+      })
+      .catch(() => setListWard([]));
   };
 
-  const handleWardChange = (value, valueWard) => {
-    form.setFieldsValue({ wardCode: valueWard.valueWard });
+  // Khi chọn Xã/Phường
+  const handleWardChange = (value, option) => {
+    form.setFieldsValue({ wardCode: option.valueWard });
   };
 
   useEffect(() => {
-    loadDataProvince();
-  }, []);
+    if (visible) {
+      loadDataProvince();
+      // Luôn set userId vào form khi modal mở
+      form.setFieldsValue({ userId: id });
+    }
+  }, [visible, id, form]);
 
   return (
-    <Modal
-      key="add"
-      title="Thêm địa chỉ"
-      visible={visible}
-      onCancel={handleCancel}
-      footer={[
-        <Button key="cancel" onClick={handleCancel}>
-          Hủy
-        </Button>,
-        <Button key="submit" type="primary" onClick={handleOk}>
-          Thêm
-        </Button>,
-      ]}
+    <Drawer
+      title={
+        <Space>
+          <PlusOutlined />
+          <span>Tạo Địa Chỉ Giao Hàng Mới</span>
+        </Space>
+      }
+      width={520}
+      onClose={handleCancel}
+      open={visible}
+      destroyOnClose // Tự động dọn dẹp khi đóng
+      footer={
+        <div style={{ textAlign: 'right' }}>
+          <Space>
+            <Button onClick={handleCancel}>Hủy</Button>
+            <Button
+              onClick={handleOk}
+              type="primary"
+              loading={loading}
+            >
+              Lưu địa chỉ
+            </Button>
+          </Space>
+        </div>
+      }
     >
       <Form
         form={form}
         layout="vertical"
-        initialValues={{
-          userId: id,
-        }}
+        initialValues={{ userId: id, status: "DANG_SU_DUNG" }}
+        requiredMark="optional"
       >
-        {" "}
-        <Form.Item
-          label="Họ và tên"
-          name="fullName"
-          rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
-        >
-          <Input placeholder="Họ và tên" />
-        </Form.Item>
-        <Form.Item
-          label="Số điện thoại"
-          name="phoneNumber"
-          rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại" },
-            {
-              pattern: /^0\d{9}$/,
-              message: "Số điện thoại phải bắt đầu từ số 0 và gồm 10 chữ số",
-            },
-          ]}
-        >
-          <Input placeholder="Số điện thoại" />
-        </Form.Item>
+        <Divider orientation="left" plain>Thông tin người nhận</Divider>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Họ và tên"
+              name="fullName"
+              rules={[{ required: true, message: "Nhập họ tên" }]}
+            >
+              <Input prefix={<UserOutlined />} placeholder="Nguyễn Văn A" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Số điện thoại"
+              name="phoneNumber"
+              rules={[
+                { required: true, message: "Nhập SĐT" },
+                { pattern: /^0\d{9}$/, message: "SĐT phải có 10 số và bắt đầu bằng 0" },
+              ]}
+            >
+              <Input prefix={<PhoneOutlined />} placeholder="09xxxxxxx" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Divider orientation="left" plain>Địa chỉ chi tiết</Divider>
+
         <Form.Item
           label="Tỉnh/Thành phố"
           name="province"
-          rules={[{ required: true, message: "Vui lòng chọn Tỉnh/Thành phố" }]}
+          rules={[{ required: true, message: "Chọn tỉnh thành" }]}
         >
-          <Select defaultValue="" onChange={handleProvinceChange}>
-            <Option value="">Chọn Tỉnh/Thành phố</Option>
-            {listProvince?.map((item) => {
-              return (
-                <Option
-                  key={item.ProvinceID}
-                  value={item.ProvinceName}
-                  valueProvince={item.ProvinceID}
-                >
-                  {item.ProvinceName}
-                </Option>
-              );
-            })}
+          <Select
+            placeholder="Chọn Tỉnh/Thành phố"
+            onChange={handleProvinceChange}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {listProvince?.map((item) => (
+              <Option key={item.ProvinceID} value={item.ProvinceName} valueProvince={item.ProvinceID}>
+                {item.ProvinceName}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Quận/Huyện"
+              name="district"
+              rules={[{ required: true, message: "Chọn quận huyện" }]}
+            >
+              <Select
+                placeholder="Chọn Quận/Huyện"
+                onChange={handleDistrictChange}
+                disabled={!listDistricts.length}
+                showSearch
+              >
+                {listDistricts.map((item) => (
+                  <Option key={item.DistrictID} value={item.DistrictName} valueDistrict={item.DistrictID}>
+                    {item.DistrictName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Xã/Phường"
+              name="ward"
+              rules={[{ required: true, message: "Chọn xã phường" }]}
+            >
+              <Select
+                placeholder="Chọn Xã/Phường"
+                onChange={handleWardChange}
+                disabled={!listWard.length}
+                showSearch
+              >
+                {listWard.map((item) => (
+                  <Option key={item.WardCode} value={item.WardName} valueWard={item.WardCode}>
+                    {item.WardName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Form.Item
-          label="Quận/Huyện"
-          name="district"
-          rules={[{ required: true, message: "Vui lòng chọn Quận/Huyện" }]}
-        >
-          <Select defaultValue=" " onChange={handleDistrictChange}>
-            <Option value=" ">Chọn Quận/Huyện</Option>
-            {listDistricts?.map((item) => {
-              return (
-                <Option
-                  key={item.DistrictID}
-                  value={item.DistrictName}
-                  valueDistrict={item.DistrictID}
-                >
-                  {item.DistrictName}
-                </Option>
-              );
-            })}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="Xã/Phường"
-          name="ward"
-          rules={[{ required: true, message: "Vui lòng chọn Xã/Phường" }]}
-        >
-          <Select defaultValue="" onChange={handleWardChange}>
-            <Option value="">Chọn Xã/Phường</Option>
-            {listWard?.map((item) => {
-              return (
-                <Option
-                  key={item.WardCode}
-                  value={item.WardName}
-                  valueWard={item.WardCode}
-                >
-                  {item.WardName}
-                </Option>
-              );
-            })}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="Số nhà/Ngõ/Đường"
+          label="Địa chỉ cụ thể"
           name="line"
-          rules={[
-            { required: true, message: "Vui lòng nhập số nhà/ngõ/đường" },
-          ]}
+          rules={[{ required: true, message: "Nhập địa chỉ chi tiết" }]}
         >
-          <Input placeholder="Số nhà/Ngõ/Đường" />
+          <Input.TextArea
+            rows={3}
+            placeholder="Số nhà, tên đường, ngõ hẻm..."
+          />
         </Form.Item>
-        <Form.Item label="Trạng thái" name="status" hidden>
-          <Select defaultValue="DANG_SU_DUNG">
-            <Option value="DANG_SU_DUNG">Mặc định</Option>
-            <Option value="KHONG_SU_DUNG">Không sử dụng</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item style={{ marginTop: "40px" }} name="userId" hidden>
-          <Input disabled />
-        </Form.Item>
-        <Form.Item style={{ marginTop: "40px" }} name="toDistrictId" hidden>
-          <Input disabled />
-        </Form.Item>
-        <Form.Item style={{ marginTop: "40px" }} name="provinceId" hidden>
-          <Input disabled />
-        </Form.Item>
-        <Form.Item style={{ marginTop: "40px" }} name="wardCode" hidden>
-          <Input disabled />
-        </Form.Item>
+
+        {/* Hidden Fields: Để đảm bảo values lấy được các ID cần thiết */}
+        <Form.Item name="userId" hidden><Input /></Form.Item>
+        <Form.Item name="provinceId" hidden><Input /></Form.Item>
+        <Form.Item name="districtId" hidden><Input /></Form.Item>
+        <Form.Item name="wardCode" hidden><Input /></Form.Item>
+        <Form.Item name="status" hidden><Input /></Form.Item>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };
 

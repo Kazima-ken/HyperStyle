@@ -107,7 +107,7 @@ function App() {
       <BrowserRouter basename={AppConfig.routerBase}>
         <Routes>
           <Route path="*" element={<NotFound />} />
-          <Route path="/" element={<GuestGuard><DashBoardCustomer><Home /></DashBoardCustomer></GuestGuard>} />
+          <Route path="/" element={<GuestGuard><CartService><DashBoardCustomer><Home /></DashBoardCustomer></CartService></GuestGuard>} />
           <Route path="/login" element={<GuestGuard> <Login /></GuestGuard>} />
           <Route path="/signup" element={<GuestGuard> <Signup /></GuestGuard>} />
           <Route path="/home" element={<AuthGuard><CartService><DashBoardCustomer><Home /></DashBoardCustomer></CartService></AuthGuard>} />
@@ -116,7 +116,7 @@ function App() {
           <Route path="/payment/payment-success" element={<AuthGuard><CartService><DashBoardCustomer><PayMentSuccess /></DashBoardCustomer></CartService></AuthGuard>} />
           <Route path="/cart" element={<AuthGuard><CartService><DashBoardCustomer><Cart /></DashBoardCustomer></CartService></AuthGuard>} />
           <Route path="/detail-product/:id" element={<AuthGuard><CartService><DashBoardCustomer><FormDetailProductCustomer /></DashBoardCustomer></CartService></AuthGuard>} />
-          <Route path="/profile" element={<AuthGuard><DashBoardCustomer><Profile /></DashBoardCustomer></AuthGuard>} />
+          <Route path="/profile" element={<AuthGuard><CartService><DashBoardCustomer><Profile /></DashBoardCustomer></CartService></AuthGuard>} />
           <Route path="/admin" element={<AuthGuard requiredRole="ROLE_ADMIN"><DashBoardAdmin /></AuthGuard>} />
           <Route path="/login-management" element={<GuestGuard><LoginAdmin /></GuestGuard>} />
           <Route path="/category-management" element={<AuthGuard requiredRole="ROLE_ADMIN"><DashBoardAdmin><CategoryAdmin /></DashBoardAdmin></AuthGuard>} />

@@ -340,13 +340,6 @@ const CustomerManagement = () => {
                             </Space>
                         </Title>
                     </Col>
-                    {/* <Col xs={24} md={12} style={{ textAlign: "right" }}>
-                        <Link to="/create-customer-management">
-                            <Button type="primary" icon={<PlusOutlined />} size="large" style={{ borderRadius: "6px" }}>
-                                Thêm mới
-                            </Button>
-                        </Link>
-                    </Col> */}
                 </Row>
 
                 <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #f0f0f0" }}>
@@ -371,15 +364,6 @@ const CustomerManagement = () => {
                                 <Option value="DANG_SU_DUNG">Đang sử dụng</Option>
                                 <Option value="KHONG_SU_DUNG">Ngừng kích hoạt</Option>
                             </Select>
-                        </Col>
-                        <Col xs={24} sm={12} md={6} lg={6}>
-                            <RangePicker
-                                style={{ width: "100%" }}
-                                placeholder={['Từ ngày sinh', 'Đến ngày sinh']}
-                                onChange={filterByDateOfBirthRange}
-                                value={startDate && endDate ? [moment(startDate), moment(endDate)] : null}
-                                format="DD/MM/YYYY"
-                            />
                         </Col>
                         <Col xs={24} sm={12} md={4} lg={4}>
                             <Button icon={<ReloadOutlined />} onClick={handleClear}>
@@ -493,19 +477,6 @@ const CustomerManagement = () => {
                                                     ) : (
                                                         <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid #d9d9d9' }} />
                                                     )}
-
-                                                    <Tooltip title="Chỉnh sửa">
-                                                        <Button
-                                                            type="text"
-                                                            icon={<EditOutlined style={{ color: '#1890ff' }} />}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation(); // Ngăn sự kiện click vào Card
-                                                                handleViewUpdate(item.id);
-                                                            }}
-                                                        >
-                                                            Sửa
-                                                        </Button>
-                                                    </Tooltip>
                                                 </div>
                                             </div>
                                         </Card>

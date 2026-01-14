@@ -1,6 +1,7 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.BillStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -34,8 +36,11 @@ public class BillDetail extends BaseEntity{
     @JoinColumn(name = "id_bill",referencedColumnName = "id")
     private Bill bill;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
+
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
+    private LocalDateTime lastModifiedDate;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -44,6 +49,8 @@ public class BillDetail extends BaseEntity{
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="status_bill")
+    @JsonProperty("statusBill")
     private BillStatus billStatus;
 
 }

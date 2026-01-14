@@ -1,6 +1,7 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,14 +25,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "cart")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Cart extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_product_detail",referencedColumnName = "id")
     private ProductDetail productDetail;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_account",referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "id_account", unique = false)
     private Account account;
 
     @Column(name = "quantity")

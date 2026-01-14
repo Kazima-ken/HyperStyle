@@ -1,6 +1,6 @@
 import "./style-card.css";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import { useCart } from "./CartService";
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,11 +30,8 @@ function Cart() {
   // State cho Modal đổi size
   const [modalSize, setModalSize] = useState(false);
   const [listSize, setListSize] = useState([]);
-  const [detailProductNew, setDetailProductNew] = useState({});
-  const [detailProductOld, setDetailProductOld] = useState({});
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [clickedIndex, setClickedIndex] = useState(-1);
-  const [formChangeSize, setFormChangeSise] = useState({});
 
   // --- PHẦN 1: LOGIC KHỞI TẠO DỮ LIỆU ---
 
@@ -75,7 +72,6 @@ function Cart() {
     }
   }, []);
 
-  // Cập nhật số lượng hiển thị trên icon giỏ hàng
   useEffect(() => {
     if (idAccountLocal === null) {
       localStorage.setItem("cartLocal", JSON.stringify(cart));
@@ -86,7 +82,6 @@ function Cart() {
     }
   }, [cart]);
 
-  // Kiểm tra nút Select All
   useEffect(() => {
     if (cart.length > 0 && chooseItemCart.length === cart.length) {
       setSelectAllChecked(true);
@@ -95,24 +90,18 @@ function Cart() {
     }
   }, [chooseItemCart, cart]);
 
-  // --- PHẦN 2: LOGIC TÍNH TIỀN TỰ ĐỘNG (QUAN TRỌNG) ---
-
-  // 1. Đồng bộ dữ liệu: Khi Cart thay đổi (do API cập nhật số lượng),
-  // cập nhật lại thông tin trong chooseItemCart để tính tiền đúng.
   useEffect(() => {
     if (chooseItemCart.length > 0) {
       const updatedChooseList = chooseItemCart.map(selectedItem => {
         const latestItemInCart = cart.find(c => c.idProductDetail === selectedItem.idProductDetail);
         return latestItemInCart ? latestItemInCart : selectedItem;
       });
-      // So sánh sơ bộ để tránh loop vô hạn
       if (JSON.stringify(updatedChooseList) !== JSON.stringify(chooseItemCart)) {
         setChooseItemCart(updatedChooseList);
       }
     }
   }, [cart]);
 
-  // 2. Tính tổng tiền: Chạy khi danh sách chọn thay đổi
   useEffect(() => {
     const total = chooseItemCart.reduce((acc, item) => {
       const price = parseInt(item.price || 0);
@@ -160,7 +149,7 @@ function Cart() {
         (item) => item.quantityProductDetail === 0
       );
       if (itemOutNumber) {
-        toast.warning("Có sản phẩm đã bán hết, vui lòng xoá!");
+        message.warning("Có sản phẩm đã bán hết, vui lòng xoá!");
         return;
       }
       setChooseItemCart(cart);
@@ -168,10 +157,9 @@ function Cart() {
     setSelectAllChecked(!selectAllChecked);
   };
 
-  // Chọn từng sản phẩm
   const chooseCartForBill = (item, checked) => {
     if (item.quantityProductDetail === 0) {
-      toast.error("Sản phẩm đã bán hết");
+      message.error("Sản phẩm đã bán hết");
       return;
     }
 
@@ -186,37 +174,6 @@ function Cart() {
     }
   };
 
-  const changeQuantity = (itemOld, value, quantityProductDetail) => {
-    if (value > quantityProductDetail) {
-      toast.warning(`Số sản phẩm tối đa là ${quantityProductDetail}`);
-      return;
-    }
-
-    const newValue = parseInt(value) < 1 ? 1 : parseInt(value);
-
-    if (idAccountLocal === null) {
-      const updatedCart = cart.map((item) => {
-        if (item.idProductDetail === itemOld.idProductDetail) {
-          return { ...item, quantity: newValue };
-        }
-        return item;
-      });
-      setCart(updatedCart);
-    } else {
-      const formChange = {
-        idCartDetail: itemOld.idCartDetail,
-        quantity: newValue,
-      };
-
-      CartApi.changeQuantity(formChange).then(
-        (res) => {
-          getListCart(idAccountLocal);
-        },
-        (err) => console.log(err)
-      );
-    }
-  };
-
   const deleteItemCart = (record) => {
     Modal.confirm({
       title: "Xác nhận xóa",
@@ -225,17 +182,17 @@ function Cart() {
         if (idAccountLocal) {
           CartApi.deleteCartDetail(record.idCart)
             .then(() => {
-              toast.success("Xóa thành công");
+              message.success("Xóa thành công");
               setCart(prev => prev.filter(item => item.idCart !== record.idCart));
               setChooseItemCart(prev => prev.filter(item => item.idCart !== record.idCart));
               getQuantityInCart(idAccountLocal);
             })
-            .catch((err) => toast.error("Lỗi khi xóa!"));
+            .catch((err) => message.error("Lỗi khi xóa!"));
         } else {
           const newCart = cart.filter(item => item.idProductDetail !== record.idProductDetail);
           setCart(newCart);
           setChooseItemCart(prev => prev.filter(item => item.idProductDetail !== record.idProductDetail));
-          toast.success("Xóa thành công");
+          message.success("Xóa thành công");
         }
       },
     });
@@ -249,7 +206,7 @@ function Cart() {
       setCart([]);
       setChooseItemCart([]);
       updateTotalQuantity(0);
-      toast.success("Đã xóa sạch giỏ hàng");
+      message.success("Đã xóa sạch giỏ hàng");
     } catch (err) {
       console.error(err);
     }
@@ -257,12 +214,12 @@ function Cart() {
 
   const payment = () => {
     if (chooseItemCart.length === 0) {
-      toast.warning("Quý khách chưa chọn sản phẩm để thanh toán!", { autoClose: 2000 });
+      message.warning("Quý khách chưa chọn sản phẩm để thanh toán!", { autoClose: 2000 });
       return;
     }
 
     if (totalBill > 100000000) {
-      toast.warning("Đơn hàng quá lớn (>100tr), vui lòng liên hệ cửa hàng!");
+      message.warning("Đơn hàng quá lớn (>100tr), vui lòng liên hệ cửa hàng!");
       return;
     }
 
@@ -274,53 +231,7 @@ function Cart() {
     }
   };
 
-  const closeModalSize = () => {
-    setModalSize(false);
-    setClickedIndex(-1);
-    setDetailProductOld({});
-  };
 
-  const getDetailProduct = (index, item) => {
-    setClickedIndex(index);
-    ProductDetailApi.getOne(item.idProduct, item.codeColor, item.nameSize).then(
-      (res) => {
-        if (idAccountLocal === null) {
-          const newCartItem = {
-            ...res.data.data,
-            quantity: detailProductOld.quantity,
-          };
-          setDetailProductNew(newCartItem);
-        } else {
-          setFormChangeSise({
-            idCartDetail: detailProductOld.idCartDetail,
-            price: res.data.data.price,
-            quantity: detailProductOld.quantity,
-            idProductDetail: res.data.data.idProductDetail,
-          });
-        }
-      },
-      (err) => console.log(err)
-    );
-  };
-
-  const changeSize = () => {
-    if (listSize.length !== 0) {
-      // Logic đổi size (đã lược bỏ chi tiết thừa, giữ cốt lõi)
-      // Lưu ý: Bạn có thể copy lại logic validate size của bạn nếu cần
-      if (idAccountLocal !== null) {
-        CartApi.changeSize(formChangeSize).then(
-          () => {
-            getListCart(idAccountLocal);
-            closeModalSize();
-          },
-          (err) => console.log(err)
-        );
-      } else {
-        // Logic local change size
-        closeModalSize();
-      }
-    }
-  };
 
   return (
     <div className="cart">
@@ -385,22 +296,12 @@ function Cart() {
                                     <div style={{ fontWeight: "bold", marginRight: 10 }}>
                                       Số lượng:
                                     </div>
-                                    <FontAwesomeIcon
-                                      icon={faMinus}
-                                      className="button-minus-quantity"
-                                      onClick={() => changeQuantity(item, parseInt(item.quantity) - 1, item.quantityProductDetail)}
-                                    />
                                     <Input
                                       className="quantity-product-in-cart"
                                       min={1}
                                       max={item.quantityProductDetail}
                                       value={item.quantity}
-                                      onChange={(e) => changeQuantity(item, e.target.value, item.quantityProductDetail)}
-                                    />
-                                    <FontAwesomeIcon
-                                      icon={faPlus}
-                                      className="button-plus-quantity"
-                                      onClick={() => changeQuantity(item, parseInt(item.quantity) + 1, item.quantityProductDetail)}
+                                      disabled
                                     />
                                   </div>
                                 </div>
@@ -461,28 +362,6 @@ function Cart() {
         </Row>
       </div>
 
-      {/* Modal Size (Giữ khung) */}
-      <Modal
-        onCancel={closeModalSize}
-        open={modalSize}
-        okButtonProps={{ style: { display: "none" } }}
-        cancelButtonProps={{ style: { display: "none" } }}
-        style={{ padding: "20px" }}
-      >
-        {listSize.length !== 0 && <h3>Chọn size</h3>}
-        <div className="list-size-of-cart">
-          {listSize.map((item, index) => (
-            <div key={index}
-              className={`item-size-of-cart ${clickedIndex === index ? "clicked" : ""}`}
-              onClick={() => getDetailProduct(index, item)}>
-              {item.nameSize}
-            </div>
-          ))}
-        </div>
-        <Button onClick={changeSize} style={{ marginTop: "20px", marginLeft: "80%", backgroundColor: "#ff4400", color: "white" }}>
-          Ok
-        </Button>
-      </Modal>
     </div>
   );
 }

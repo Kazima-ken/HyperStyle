@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Input, Select, Button, Form, Popconfirm } from "antd";
+import { Modal, Input, Select, Button, Form, Popconfirm, message } from "antd";
 import { useAppDispatch } from "../../../../app/Hook";
 import { UpdateAddress } from "../../../../app/reducer/AddressReducer";
-import { toast } from "react-toastify";
+
 import { AddressApi } from "../../../../api/admin/address/addressApi";
 
 const { Option } = Select;
@@ -18,21 +18,32 @@ const ModalUpdateAddress = ({ visible, id, onCancel }) => {
   const dispatch = useAppDispatch();
 
   const getOne = () => {
-    AddressApi.detailAddressClient(id).then((res) => {
-      form.setFieldsValue({ userId: res.data.data.user.id });
-      setAddress(res.data.data);
-      setStatusAddress(res.data.data.status);
-      form.setFieldsValue(res.data.data);
-      AddressApi.getAllProvinceWard(res.data.data.toDistrictId).then(
-        (resWard) => {
+    AddressApi.a(id).then((res) => {
+      const data = res.data.data;
+      const userId = data.userId || (data.user ? data.user.id : null);
+
+      // Set giá trị cho form
+      form.setFieldsValue({
+        ...data,      // Spread toàn bộ dữ liệu address vào form
+        userId: userId // Ghi đè userId lấy được
+      });
+      // ----------------
+
+      setAddress(data);
+      setStatusAddress(data.status);
+
+      // Load dữ liệu Quận/Huyện, Phường/Xã tương ứng với địa chỉ đang sửa
+      if (data.toDistrictId) {
+        AddressApi.getAllProvinceWard(data.toDistrictId).then((resWard) => {
           setListWard(resWard.data.data);
-        }
-      );
-      AddressApi.getAllProvinceDistricts(res.data.data.provinceId).then(
-        (resDistrict) => {
+        });
+      }
+
+      if (data.provinceId) {
+        AddressApi.getAllProvinceDistricts(data.provinceId).then((resDistrict) => {
           setListDistricts(resDistrict.data.data);
-        }
-      );
+        });
+      }
     });
   };
 
@@ -66,12 +77,12 @@ const ModalUpdateAddress = ({ visible, id, onCancel }) => {
         AddressApi.update(id, values)
           .then((res) => {
             dispatch(UpdateAddress(res.data.data));
-            toast.success("Cập nhật thành công");
+            message.success("Cập nhật thành công");
             onCancel();
             form.resetFields();
           })
           .catch((error) => {
-            toast.error(error.response.data.message);
+            message.error(error.response.data.message);
             console.log("Update failed:", error);
           });
       })

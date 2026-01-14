@@ -1,23 +1,5 @@
-// src/components/SidebarMenu.js
 import React, { useEffect, useState } from "react";
 import { Layout, Menu } from 'antd';
-// import {
-//     DashboardOutlined,
-//     UserOutlined,
-//     HomeOutlined,
-//     ApartmentOutlined,
-//     FileTextOutlined,
-//     CloudOutlined,
-//     ThunderboltOutlined,
-//     SettingOutlined,
-//     ToolOutlined,
-//     DollarOutlined,
-//     CarOutlined,
-//     CustomerServiceOutlined,
-//     FileTextOutlined as BillOutlined,
-//     TeamOutlined,
-//     BarChartOutlined,
-// } from '@ant-design/icons';
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../image/logo_banner_2.png';
 import SubMenu from "antd/es/menu/SubMenu";
@@ -52,9 +34,6 @@ const SidebarMenu = () => {
             loadUser();
         }
     }, [token]);
-
-    // console.log("token:", token);
-    // console.log("document.cookie:", document.cookie);
 
 
     const isAdmin = user?.roles?.includes("ROLE_ADMIN");
@@ -126,7 +105,7 @@ const SidebarMenu = () => {
                                     navigator('/dashboard');
                                     break;
                                 case '2':
-                                    navigator('/sale-counter');
+                                    navigator('');
                                     break;
                                 case '3':
                                     navigator('/product-management');
@@ -162,7 +141,7 @@ const SidebarMenu = () => {
                     >
 
                         <Menu.Item
-                            key="2"
+                            key="8"
                             style={{
                                 color: '#f7fafc',
                                 fontSize: '14px',
@@ -173,7 +152,7 @@ const SidebarMenu = () => {
                                 marginTop: '180px'
                             }}
                         >
-                            💰 Bán Hàng Tại Quầy
+                            🧾 Quản lý hóa đơn
                         </Menu.Item>
 
                         {isAdmin && (
@@ -217,20 +196,6 @@ const SidebarMenu = () => {
                         )}
 
                         <Menu.Item
-                            key="8"
-                            style={{
-                                color: '#f7fafc',
-                                fontSize: '14px',
-                                height: '45px',
-                                lineHeight: '45px',
-                                margin: '4px 0',
-                                borderRadius: '8px'
-                            }}
-                        >
-                            🧾 Quản lý hóa đơn
-                        </Menu.Item>
-
-                        <Menu.Item
                             key="9"
                             style={{
                                 color: '#f7fafc',
@@ -260,19 +225,6 @@ const SidebarMenu = () => {
                             </Menu.Item>
                         )}
 
-                        <Menu.Item
-                            key="11"
-                            style={{
-                                color: '#f7fafc',
-                                fontSize: '14px',
-                                height: '45px',
-                                lineHeight: '45px',
-                                margin: '4px 0',
-                                borderRadius: '8px'
-                            }}
-                        >
-                            📈 Thống kê
-                        </Menu.Item>
                     </Menu>
                 </Sider>
             </div>

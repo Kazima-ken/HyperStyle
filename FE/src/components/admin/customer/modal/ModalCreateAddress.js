@@ -60,7 +60,6 @@ const ModalCreateAddress = ({ visible, onCancel, id }) => {
     setListWard([]);
 
     AddressApi.getAllProvinceDistricts(option.valueProvince).then((res) => {
-      // Nếu res.data.data là null, nó sẽ lấy mảng rỗng []
       setListDistricts(res.data.data || []);
     }).catch(() => setListDistricts([]));
   };

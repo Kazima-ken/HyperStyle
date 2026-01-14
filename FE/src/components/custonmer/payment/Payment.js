@@ -1,7 +1,7 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { faCarRear } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Col, Form, Input, Modal, Row, Select } from "antd";
+import { Col, Form, Input, message, Modal, Row, Select } from "antd";
 import dayjs from "dayjs";
 import moment from "moment";
 import utc from "dayjs/plugin/utc";
@@ -13,7 +13,7 @@ import { BillApi } from "./../../../api/admin/bill/billApi";
 import "./style-payment.css";
 import { useCart } from "../cart/CartService";
 import { useNavigate } from "react-router";
-import { toast } from "react-toastify";
+
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { parseInt } from "lodash";
@@ -236,7 +236,7 @@ function Payment() {
               );
               updateTotalQuantity(total);
               localStorage.setItem("cartLocal", JSON.stringify(updatelist));
-              toast.success("Bạn đặt hàng thành công.");
+              message.success("Bạn đặt hàng thành công.");
 
               navigate(`/home`);
             },

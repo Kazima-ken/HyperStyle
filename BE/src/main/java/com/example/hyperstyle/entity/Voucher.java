@@ -26,9 +26,9 @@ import java.util.Date;
 @Table(name = "voucher")
 public class Voucher extends BaseEntity{
 
-    @ManyToOne
-    @JoinColumn(name = "id_bill",referencedColumnName = "id")
-    private Bill bill;
+//    @ManyToOne
+//    @JoinColumn(name = "id_bill",referencedColumnName = "id")
+//    private Bill bill;
 
     @Column(name = "code")
     private String code;

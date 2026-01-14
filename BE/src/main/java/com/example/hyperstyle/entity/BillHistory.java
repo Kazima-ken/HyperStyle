@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -27,7 +28,7 @@ public class BillHistory extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "id_employees",referencedColumnName = "id")
-    private Account emplayees;
+    private Account staff;
 
     @ManyToOne
     @JoinColumn(name = "id_bill",referencedColumnName = "id")
@@ -36,11 +37,11 @@ public class BillHistory extends BaseEntity{
     @Column(name = "action_description")
     private String actionDescription;
 
-    @Column(name = "created_date")
-    private Date createdDate;
+    @Column(name = "created_date", updatable = false, insertable = false)
+    private LocalDateTime createdDate;
 
-    @Column(name = "lastModifiedDate")
-    private Date lastModifiedDate;
+    @Column(name = "last_modified_date", updatable = false, insertable = false)
+    private LocalDateTime lastModifiedDate;
 
     @Column(name = "created_by")
     private String createdBy;
@@ -49,6 +50,7 @@ public class BillHistory extends BaseEntity{
     private String updatedBy;
 
     @Enumerated(EnumType.STRING)
+    @Column(name="status_bill")
     private BillStatus billStatus;
 
 }

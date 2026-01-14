@@ -1,301 +1,245 @@
-import { Checkbox, Form, Modal } from "antd";
 import React, { useEffect, useState } from "react";
-import "./style-modal-create-address.css";
+import { Modal, Form, Input, Select, Button, Row, Col, message, Divider } from "antd";
+import { UserOutlined, PhoneOutlined, HomeOutlined } from "@ant-design/icons";
 import { AddressApi } from "../../../../api/admin/address/addressApi";
 import { dispatch } from "../../../../app/store";
 import { CreateAddressAccountClient } from "../../../../app/reducer/AddressAccountReducer";
-import { toast } from "react-toastify";
+import "./style-modal-create-address.css";
+
+const { Option } = Select;
+
 function ModalCreateAddressAccount({
   modalAddressAccount,
   setModalAddressAccount,
   getAddressDefault,
 }) {
-  const [formAdd, setFormAdd] = useState({
-    idAccount: sessionStorage.getItem("idAccount"),
-    status: "DANG_SU_DUNG"
-  });
-  const [formErrors, setFormErrors] = useState({});
+  const [form] = Form.useForm();
   const [listCity, setListCity] = useState([]);
   const [listDistrict, setListDistrict] = useState([]);
   const [listWard, setListWard] = useState([]);
-  const [isChecked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Lấy danh sách tỉnh thành khi mở modal
   useEffect(() => {
-    console.log(formAdd);
-  }, [formAdd]);
-  useEffect(() => {
-    getCities();
-  }, []);
-  const closeModalCreate = () => {
-    setFormAdd({
-      idAccount: sessionStorage.getItem("idAccount"),
-      status: "DANG_SU_DUNG",
-    });
-    setFormErrors({});
-    setModalAddressAccount(false);
-    setIsChecked(false);
-    getAddressDefault(sessionStorage.getItem("idAccount"));
-  };
-  const formAddChange = (name, value) => {
-    setFormAdd((prevFormBill) => ({
-      ...prevFormBill,
-      [name]: value,
-    }));
-    setFormErrors((prevFormErrors) => ({
-      ...prevFormErrors,
-      [name]: "",
-    }));
-  };
+    if (modalAddressAccount) {
+      getCities();
+    }
+  }, [modalAddressAccount]);
 
   const getCities = () => {
-    AddressApi.getAllProvince().then(
-      (res) => {
-        setListCity(res.data.data);
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-  };
-  const provinceChange = (value) => {
-    if (value === "") {
-      setListDistrict([]);
-      setListWard([]);
-      formAddChange("district", undefined);
-      formAddChange("districtId", "");
-      formAddChange("ward", undefined);
-      formAddChange("wardCode", "");
-    } else {
-      AddressApi.getAlldistrict(value).then(
-        (res) => {
-          setListDistrict(res.data.data);
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-    }
+    AddressApi.getAllProvince().then((res) => {
+      setListCity(res.data.data);
+    }).catch(err => console.error(err));
   };
 
-  const districtChange = (name, value) => {
-    if (value === "") {
-      formAddChange("ward", undefined);
-      formAddChange("wardCode", "");
-      setListWard([]);
-    } else {
-      AddressApi.getAllWard(value).then(
-        (res) => {
-          setListWard(res.data.data);
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-    }
+  const closeModalCreate = () => {
+    form.resetFields();
+    setListDistrict([]);
+    setListWard([]);
+    setModalAddressAccount(false);
+    // Nếu cần load lại địa chỉ mặc định sau khi đóng
+    const idAccount = sessionStorage.getItem("idAccount");
+    if (idAccount) getAddressDefault(idAccount);
   };
-  const handleCreateAddressClient = (form) => {
-    const phoneNumberPattern =
-      /^(03[2-9]|05[6-9]|07[0-9]|08[1-9]|09[0-9])[0-9]{7}$/;
-    const isFormValid =
-      formAdd.fullName &&
-      formAdd.phoneNumber &&
-      phoneNumberPattern.test(formAdd.phoneNumber) &&
-      formAdd.line &&
-      formAdd.province &&
-      formAdd.district &&
-      formAdd.ward;
 
-    if (!isFormValid) {
-      const errors = {
-        fullName: !formAdd.fullName ? "Nhập họ tên" : "",
-        phoneNumber: !formAdd.phoneNumber
-          ? "Nhập số điện thoại"
-          : !phoneNumberPattern.test(formAdd.phoneNumber)
-            ? "Nhập đúng định dạng"
-            : "",
-        province:
-          formAdd.province === undefined || !formAdd.province
-            ? "Chọn tỉnh/thành phố"
-            : "",
-        district:
-          formAdd.district === undefined || !formAdd.district
-            ? "Chọn quận/huyện"
-            : "",
-        ward:
-          formAdd.ward === undefined || !formAdd.ward ? "Chọn phường/xã" : "",
-        line: !formAdd.line ? "Nhập địa chỉ cụ thể" : "",
-      };
-      setFormErrors(errors);
-      return;
-    }
-    const add = { ...form, status: "DANG_SU_DUNG" };
-    AddressApi.createAddressClient(add).then((res) => {
-      dispatch(CreateAddressAccountClient(res.data.data));
-      toast.success("Thêm mới địa chỉ thành công");
-      closeModalCreate();
+  // Xử lý khi chọn Tỉnh/Thành
+  // 1. Sửa hàm chọn Tỉnh -> lấy Huyện
+  const handleProvinceChange = (value, option) => {
+    form.setFieldsValue({
+      provinceId: option.provinceId,
+      district: undefined,
+      districtId: undefined,
+      ward: undefined,
+      wardCode: undefined
+    });
+    setListWard([]);
+
+    // Đổi getAlldistrict thành getAllProvinceDistricts
+    AddressApi.getAllProvinceDistricts(option.provinceId).then((res) => {
+      setListDistrict(res.data.data || []);
     });
   };
 
+  // 2. Sửa hàm chọn Huyện -> lấy Xã
+  const handleDistrictChange = (value, option) => {
+    form.setFieldsValue({
+      districtId: option.districtId,
+      ward: undefined,
+      wardCode: undefined
+    });
+
+    // Đổi getAllWard thành getAllProvinceWard
+    AddressApi.getAllProvinceWard(option.districtId).then((res) => {
+      setListWard(res.data.data || []);
+    });
+  };
+
+  const handleWardChange = (value, option) => {
+    form.setFieldsValue({ wardCode: option.wardCode });
+  };
+
+  // Hàm gửi dữ liệu
+  const handleCreateAddress = async () => {
+    try {
+      const idAccount = sessionStorage.getItem("idAccount");
+
+      if (!idAccount) {
+        message.error("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại!");
+        return;
+      }
+
+      const values = await form.validateFields();
+      setLoading(true);
+
+      const payload = {
+        ...values,
+        userId: idAccount,
+        status: "DANG_SU_DUNG"
+      };
+
+      console.log("Payload gửi đi:", payload);
+
+      const res = await AddressApi.createByAccount(payload);
+      if (res.status === 200 || res.status === 201) {
+        dispatch(CreateAddressAccountClient(res.data.data));
+        message.success("Thêm mới địa chỉ thành công");
+        closeModalCreate();
+      }
+    } catch (error) {
+      console.error("Validate Failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
-    <React.Fragment>
-      <Modal
-        open={modalAddressAccount}
-        onCancel={closeModalCreate}
-        okButtonProps={{ style: { display: "none" } }}
-        cancelButtonProps={{ style: { display: "none" } }}
-        style={{ textAlign: "center" }}
-        width={600}
+    <Modal
+      title={<div style={{ textAlign: 'center', fontSize: '20px', fontWeight: 'bold' }}>Thêm mới địa chỉ</div>}
+      open={modalAddressAccount}
+      onCancel={closeModalCreate}
+      footer={[
+        <Button key="back" onClick={closeModalCreate}>
+          Hủy
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleCreateAddress}
+          style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' }} // Màu sắc tùy chỉnh theo theme client
+        >
+          Thêm địa chỉ
+        </Button>,
+      ]}
+      width={600}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{ status: "DANG_SU_DUNG" }}
       >
-        <h2>Thêm mới địa chỉ</h2>
-        <Form layout="vertical" style={{ marginTop: 30, textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center" }}>
+        <Divider />
+        <Row gutter={16}>
+          <Col span={12}>
             <Form.Item
-              style={{ textAlign: "left" }}
-              validateStatus={formErrors["fullName"] ? "error" : ""}
-              help={formErrors["fullName"] || ""}
+              label="Họ và tên"
+              name="fullName"
+              rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
             >
-              <input
-                placeholder="Họ và tên"
-                value={formAdd["fullName"] || ""}
-                className="input-create-address-account"
-                onChange={(e) => formAddChange("fullName", e.target.value)}
-              />
+              <Input prefix={<UserOutlined />} placeholder="Nhập họ và tên" />
             </Form.Item>
-
+          </Col>
+          <Col span={12}>
             <Form.Item
-              style={{ marginLeft: "auto", textAlign: "left" }}
-              validateStatus={formErrors["phoneNumber"] ? "error" : ""}
-              help={formErrors["phoneNumber"] || ""}
+              label="Số điện thoại"
+              name="phoneNumber"
+              rules={[
+                { required: true, message: "Vui lòng nhập số điện thoại" },
+                { pattern: /^(03[2-9]|05[6-9]|07[0-9]|08[1-9]|09[0-9])[0-9]{7}$/, message: "Số điện thoại không đúng định dạng" }
+              ]}
             >
-              <input
-                placeholder="Số điện thoại"
-                value={formAdd["phoneNumber"] || ""}
-                className="input-create-address-account"
-                onChange={(e) => formAddChange("phoneNumber", e.target.value)}
-              />
+              <Input prefix={<PhoneOutlined />} placeholder="Nhập số điện thoại" />
             </Form.Item>
-          </div>
+          </Col>
+        </Row>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              textAlign: "left",
-            }}
+        <Form.Item
+          label="Tỉnh/Thành phố"
+          name="province"
+          rules={[{ required: true, message: "Vui lòng chọn Tỉnh/Thành phố" }]}
+        >
+          <Select
+            showSearch
+            placeholder="Chọn Tỉnh/Thành phố"
+            onChange={handleProvinceChange}
+            filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
           >
+            {listCity.map((item) => (
+              <Option key={item.ProvinceID} value={item.ProvinceName} provinceId={item.ProvinceID}>
+                {item.ProvinceName}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Row gutter={16}>
+          <Col span={12}>
             <Form.Item
-              style={{ marginRight: 10 }}
-              validateStatus={formErrors["province"] ? "error" : ""}
-              help={formErrors["province"] || ""}
+              label="Quận/Huyện"
+              name="district"
+              rules={[{ required: true, message: "Vui lòng chọn Quận/Huyện" }]}
             >
-              <select
-                className="select-create-address-address"
-                value={`${formAdd["provinceId"]}|${formAdd["province"]}`}
-                onChange={(e) => {
-                  const selectedValue = e.target.value; // Lấy giá trị đã chọn (bao gồm cả ProvinceID và ProvinceName)
-                  const [provinceID, provinceName] = selectedValue.split("|"); // Tách giá trị thành ProvinceID và ProvinceName
-                  // Bây giờ bạn có thể sử dụng provinceID và provinceName theo nhu cầu
-                  provinceChange(provinceID); // Gọi hàm provinceChange với ProvinceID
-                  formAddChange("province", provinceName);
-                  formAddChange("provinceId", provinceID);
-                }}
+              <Select
+                showSearch
+                placeholder="Chọn Quận/Huyện"
+                disabled={!listDistrict.length}
+                onChange={handleDistrictChange}
+                filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
               >
-                <option value="">Tỉnh/Thành phố</option>
-                {listCity.map((item, index) => (
-                  <option
-                    key={index}
-                    value={`${item.ProvinceID}|${item.ProvinceName}`}
-                  >
-                    {item.ProvinceName}
-                  </option>
-                ))}
-              </select>
-            </Form.Item>
-            <Form.Item
-              style={{ marginRight: 10 }}
-              validateStatus={formErrors["district"] ? "error" : ""}
-              help={formErrors["district"] || ""}
-            >
-              <select
-                className="select-create-address-address"
-                value={`${formAdd["districtId"]}|${formAdd["district"]}`}
-                onChange={(e) => {
-                  const selectedValue = e.target.value; // Lấy giá trị đã chọn (bao gồm cả ProvinceID và ProvinceName)
-                  const [districtID, districtName] = selectedValue.split("|"); // Tách giá trị thành ProvinceID và ProvinceName
-                  // Bây giờ bạn có thể sử dụng provinceID và provinceName theo nhu cầu
-                  districtChange("district", districtID); // Gọi hàm provinceChange với ProvinceID
-                  formAddChange("district", districtName);
-                  formAddChange("districtId", districtID);
-                }}
-              >
-                <option value="">Quận/Huyện</option>
-                {listDistrict.map((item, index) => (
-                  <option
-                    key={index}
-                    value={`${item.DistrictID}|${item.DistrictName}`}
-                  >
+                {listDistrict.map((item) => (
+                  <Option key={item.DistrictID} value={item.DistrictName} districtId={item.DistrictID}>
                     {item.DistrictName}
-                  </option>
+                  </Option>
                 ))}
-              </select>
+              </Select>
             </Form.Item>
+          </Col>
+          <Col span={12}>
             <Form.Item
-              validateStatus={formErrors["ward"] ? "error" : ""}
-              help={formErrors["ward"] || ""}
+              label="Phường/Xã"
+              name="ward"
+              rules={[{ required: true, message: "Vui lòng chọn Phường/Xã" }]}
             >
-              <select
-                value={`${formAdd["wardCode"]}|${formAdd["ward"]}`}
-                className="select-create-address-address"
-                onChange={(e) => {
-                  const selectedValue = e.target.value; // Lấy giá trị đã chọn (bao gồm cả ProvinceID và ProvinceName)
-                  const [WardCode, WardName] = selectedValue.split("|"); // Tách giá trị thành ProvinceID và ProvinceName
-                  // Bây giờ bạn có thể sử dụng provinceID và provinceName theo nhu cầu
-                  formAddChange("ward", WardName);
-                  formAddChange("wardCode", WardCode);
-                }}
+              <Select
+                showSearch
+                placeholder="Chọn Phường/Xã"
+                disabled={!listWard.length}
+                onChange={handleWardChange}
+                filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
               >
-                <option value="">Phường/Xã</option>
-                {listWard.map((item, index) => (
-                  <option
-                    key={index}
-                    value={`${item.WardCode}|${item.WardName}`}
-                  >
+                {listWard.map((item) => (
+                  <Option key={item.WardCode} value={item.WardName} wardCode={item.WardCode}>
                     {item.WardName}
-                  </option>
+                  </Option>
                 ))}
-              </select>
+              </Select>
             </Form.Item>
-          </div>
+          </Col>
+        </Row>
 
-          <Form.Item
-            style={{ textAlign: "left" }}
-            validateStatus={formErrors["line"] ? "error" : ""}
-            help={formErrors["line"] || ""}
-          >
-            <input
-              placeholder="Địa chỉ cụ thế"
-              className="input-line-create-address-account"
-              value={formAdd["line"] || ""}
-              onChange={(e) => formAddChange("line", e.target.value)}
-            />
-          </Form.Item>
+        <Form.Item
+          label="Địa chỉ cụ thể"
+          name="line"
+          rules={[{ required: true, message: "Vui lòng nhập địa chỉ cụ thể" }]}
+        >
+          <Input.TextArea prefix={<HomeOutlined />} placeholder="Số nhà, tên đường..." rows={2} />
+        </Form.Item>
 
-          <div className="box-action-create-address-account">
-            <div
-              className="buuton-cancel-create-address-account"
-              onClick={closeModalCreate}
-            >
-              Huỷ
-            </div>
-            <div
-              className="buuton-create-address-account"
-              onClick={() => handleCreateAddressClient(formAdd)}
-            >
-              Thêm
-            </div>
-          </div>
-        </Form>
-      </Modal>
-    </React.Fragment>
+        {/* Các trường ẩn để gửi lên API */}
+        <Form.Item name="provinceId" hidden><Input /></Form.Item>
+        <Form.Item name="districtId" hidden><Input /></Form.Item>
+        <Form.Item name="wardCode" hidden><Input /></Form.Item>
+      </Form>
+    </Modal>
   );
 }
 

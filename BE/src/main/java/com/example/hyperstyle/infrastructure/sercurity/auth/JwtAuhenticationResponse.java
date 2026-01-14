@@ -18,4 +18,6 @@ public class JwtAuhenticationResponse {
     private String token;
 
     private String refreshToken;
+
+    private String idAccount;
 }

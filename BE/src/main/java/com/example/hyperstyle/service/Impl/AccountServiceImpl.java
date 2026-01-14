@@ -1,7 +1,9 @@
 package com.example.hyperstyle.service.Impl;
 
 import com.example.hyperstyle.dto.request.account.ChangePasswordByIDRequest;
-import com.example.hyperstyle.dto.request.account.ChangePasswordRequest;
+import com.example.hyperstyle.dto.response.account.AccountResponse;
+import com.example.hyperstyle.dto.response.staff.StaffFullResponse;
+import com.example.hyperstyle.dto.response.staff.StaffReduceResponse;
 import com.example.hyperstyle.entity.Account;
 import com.example.hyperstyle.entity.User;
 import com.example.hyperstyle.infrastructure.constant.Status;
@@ -13,6 +15,7 @@ import com.example.hyperstyle.infrastructure.sercurity.auth.SigninRequest;
 import com.example.hyperstyle.infrastructure.session.ShoseSession;
 import com.example.hyperstyle.repository.AccountRepository;
 import com.example.hyperstyle.repository.UserReposiory;
+import com.example.hyperstyle.repository.UserRepository;
 import com.example.hyperstyle.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,18 +40,20 @@ public class AccountServiceImpl implements AccountService {
 
     private final JwtService jwtService;
 
-    private final UserReposiory userReposiory;
+    private final UserRepository userReposiory;
 
     private final ShoseSession shoseSession;
 
     @Override
-    public List<Account> findAll() {
-        return null;
+    public List<Account> getAll() {
+        // Sử dụng phương thức có sẵn của JpaRepository
+        return accountRepository.findAll();
     }
 
     @Override
-    public Account getOneEmail(String Email) {
-        return null;
+    public Account getOneEmail(String email) {
+        // Sử dụng phương thức bạn đã định nghĩa trong Repository
+        return accountRepository.getOneByEmail(email);
     }
 
     @Override
@@ -70,7 +75,7 @@ public class AccountServiceImpl implements AccountService {
             throw new RestApiException("Xác thực thất bại: " + e.getMessage());
         }
 
-        var account = accountRepository.findByEmail(request.getEmail())
+        var account = accountRepository.getByEmail(request.getEmail())
                 .orElseThrow(() -> new RestApiException("Email hoặc mật khẩu không hợp lệ."));
 
         var jwt = jwtService.generateAccessToken(account, Map.of());
@@ -80,6 +85,7 @@ public class AccountServiceImpl implements AccountService {
         return JwtAuhenticationResponse.builder()
                 .refreshToken(refreshToken)
                 .token(jwt)
+                .idAccount(account.getId())
                 .build();
     }
 
@@ -112,7 +118,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public JwtAuhenticationResponse refreshToken(RefreshTokenRequets refresh) {
         String userEmail = jwtService.extractUsername(refresh.getToken());
-        Account account = accountRepository.findByEmail(userEmail).orElseThrow();
+        Account account = accountRepository.getByEmail(userEmail).orElseThrow();
         if (jwtService.isTokenValid(refresh.getToken(), account)) {
             var jwt = jwtService.generateRefreshToken(account);
             return JwtAuhenticationResponse.builder()
@@ -175,4 +181,13 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Override
+    public List<StaffFullResponse> getAllStaff() {
+        return accountRepository.getAllStaff();
+    }
+
+    @Override
+    public AccountResponse getByIdBill(String idBill) {
+        return accountRepository.getAccountByIdBill(idBill);
+    }
 }

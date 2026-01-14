@@ -1,10 +1,12 @@
 package com.example.hyperstyle.entity;
 
 import com.example.hyperstyle.infrastructure.constant.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -22,10 +24,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "address")
-public class Address extends BaseEntity{
+public class Address extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY) // Hoặc EAGER
+    @JoinColumn(name = "id_user")
+    @JsonIgnore
     private User user;
 
     @Column(name = "line")
@@ -38,7 +41,7 @@ public class Address extends BaseEntity{
     private String district;
 
     @Column(name = "ward")
-    private String ward ;
+    private String ward;
 
     @Column(name = "ward_code")
     private String wardCode;

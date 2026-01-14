@@ -97,4 +97,14 @@ export class BillApi {
     });
   }
 
+  static createBillAccountOnline = (data) => {
+    return request({
+      method: "POST",
+      url: `/admin/bill/account`,
+      data: data,
+    });
+  };
+
+
+
 }

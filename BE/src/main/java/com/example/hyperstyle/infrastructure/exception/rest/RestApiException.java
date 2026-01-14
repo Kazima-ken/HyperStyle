@@ -18,6 +18,12 @@ public class RestApiException extends RuntimeException {
 
     public RestApiException(String message) {
         super(message);
+        this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 
     public void setMessage(String message) {

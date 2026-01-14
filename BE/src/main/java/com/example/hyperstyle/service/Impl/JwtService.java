@@ -109,6 +109,10 @@ public class JwtService {
         }
     }
 
+    public List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> claims.get("roles", List.class));
+    }
+
 
 }
 
