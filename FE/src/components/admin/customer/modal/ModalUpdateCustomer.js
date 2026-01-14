@@ -40,7 +40,20 @@ const ModalUpdateCustomer = () => {
   const [previewTitle, setPreviewTitle] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // 1. XỬ LÝ ẢNH =========================================================
+  const validateBirthDate = (_, value) => {
+    if (!value) return Promise.reject(new Error("Vui lòng chọn ngày sinh"));
+    const chosenDate = moment(value);
+    const now = moment();
+    if (chosenDate.isAfter(now)) {
+      return Promise.reject(new Error("Ngày sinh không thể ở tương lai"));
+    }
+    if (now.diff(chosenDate, 'years') < 18) {
+      return Promise.reject(new Error("Khách hàng phải từ 18 tuổi trở lên"));
+    }
+    return Promise.resolve();
+  };
+
+
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -73,7 +86,6 @@ const ModalUpdateCustomer = () => {
     }
   };
 
-  // 2. XỬ LÝ ĐỊA CHỈ (GHN API) ===========================================
   const loadDataProvince = () => {
     AddressApi.getAllProvince().then((res) => {
       setListProvince(res.data.data);
@@ -81,35 +93,29 @@ const ModalUpdateCustomer = () => {
   };
 
   const handleProvinceChange = (value) => {
-    // Reset Quận/Huyện và Xã/Phường
     form.setFieldsValue({ districtId: undefined, wardCode: undefined });
     setListDistricts([]);
     setListWard([]);
 
-    // Load Quận/Huyện mới
     AddressApi.getAllProvinceDistricts(value).then((res) => {
       setListDistricts(res.data.data);
     });
   };
 
   const handleDistrictChange = (value) => {
-    // Reset Xã/Phường
     form.setFieldsValue({ wardCode: undefined });
 
-    // Load Xã/Phường mới
     AddressApi.getAllProvinceWard(value).then((res) => {
       setListWard(res.data.data);
     });
   };
 
-  // 3. LOAD DATA KHI VÀO TRANG ===========================================
   const getOne = () => {
     if (id) {
       CustomerApi.getOne(id).then((res) => {
         const userData = res.data.data;
         setCustomer(userData);
 
-        // Lấy địa chỉ mặc định của user (Nếu API getOne không trả về address thì gọi API address riêng)
         AddressApi.getAddressByUserIdAndStatus(id).then((resAddress) => {
           const addressData = resAddress.data.data; // Giả sử API trả về 1 object address
 
@@ -283,8 +289,19 @@ const ModalUpdateCustomer = () => {
             <Card title="Thông tin cá nhân" bordered={false} style={{ borderRadius: 16, marginBottom: 24 }}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item label={<Space><UserOutlined />Họ và tên</Space>} name="fullName" rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}>
-                    <Input placeholder="Nhập họ và tên" />
+                  <Form.Item
+                    label={<Space><UserOutlined />Họ và tên</Space>}
+                    name="fullName"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập họ tên" },
+                      { whitespace: true, message: "Họ tên không được chỉ chứa khoảng trắng" },
+                      {
+                        pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỵỷỹý\s]+$/,
+                        message: "Họ tên không được chứa số hoặc ký tự đặc biệt"
+                      }
+                    ]}
+                  >
+                    <Input placeholder="Nhập họ và tên" maxLength={50} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -293,12 +310,24 @@ const ModalUpdateCustomer = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={<Space><PhoneOutlined />Số điện thoại</Space>} name="phoneNumber" rules={[{ required: true, message: "Vui lòng nhập SĐT" }]}>
-                    <Input placeholder="Nhập số điện thoại" />
+                  <Form.Item
+                    label={<Space><PhoneOutlined />Số điện thoại</Space>}
+                    name="phoneNumber"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập số điện thoại" },
+                      { pattern: /^(0[3|5|7|8|9])([0-9]{8})$/, message: "Số điện thoại không đúng định dạng VN (10 số)" }
+                    ]}
+                  >
+                    <Input placeholder="Ví dụ: 0987654321" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={<Space><CalendarOutlined />Ngày sinh</Space>} name="dateOfBirth" rules={[{ required: true, message: "Chọn ngày sinh" }]}>
+                  <Form.Item
+                    label={<Space><CalendarOutlined />Ngày sinh</Space>}
+                    name="dateOfBirth"
+                    rules={[{ validator: validateBirthDate }]}
+                  >
+                    {/* Nên dùng DatePicker của Antd thay vì Input type="date" để đồng bộ giao diện */}
                     <Input type="date" />
                   </Form.Item>
                 </Col>
@@ -345,8 +374,15 @@ const ModalUpdateCustomer = () => {
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item label={<Space><EnvironmentOutlined />Địa chỉ chi tiết</Space>} name="line" rules={[{ required: true, message: "Nhập địa chỉ cụ thể" }]}>
-                    <Input.TextArea rows={2} placeholder="Số nhà, tên đường..." />
+                  <Form.Item
+                    label={<Space><EnvironmentOutlined />Địa chỉ chi tiết</Space>}
+                    name="line"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập địa chỉ cụ thể" },
+                      { min: 5, message: "Địa chỉ quá ngắn, vui lòng nhập chi tiết hơn" }
+                    ]}
+                  >
+                    <Input.TextArea rows={2} placeholder="Số nhà, tên đường, thôn/xóm..." maxLength={100} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>

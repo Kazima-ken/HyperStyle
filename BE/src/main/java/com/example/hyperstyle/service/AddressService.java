@@ -2,6 +2,7 @@ package com.example.hyperstyle.service;
 
 import com.example.hyperstyle.dto.request.address.CreateAddressRequest;
 import com.example.hyperstyle.dto.request.address.FindAddressRequest;
+import com.example.hyperstyle.dto.request.address.UpdateAddressRequest;
 import com.example.hyperstyle.dto.response.address.AddressResponse;
 import com.example.hyperstyle.dto.response.address.AddressUserReponse;
 import com.example.hyperstyle.entity.Address;
@@ -26,6 +27,10 @@ public interface AddressService {
     Address getAddressByUserIdAndStatus(String id, Status status);
 
     Address getAddressByUserAccountAndStatus(String id, Status status);
+
+    Address getOne(String id);
+
+    Address update(String id, UpdateAddressRequest request);
 
 
 }

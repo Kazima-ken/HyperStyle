@@ -3,29 +3,32 @@ import { Modal, Input, Select, Button, Form, message } from "antd";
 import { useAppDispatch } from "../../../../app/Hook";
 
 import "react-toastify/dist/ReactToastify.css";
-import { MaterialApi } from "../../../../api/admin/material/MaterialApi";
-import { UpdateMaterial } from "../../../../app/reducer/MaterialReducer";
+import { SoleApi } from "../../../../api/admin/sole/SoleApi";
+import { UpdateSole } from "../../../../app/reducer/SoleReducer";
 
 const { Option } = Select;
 
-const ModalUpdateMaterial = ({ visible, id, onCancel }) => {
+const ModalUpdateSole = ({ visible, id, onCancel }) => {
     const [form] = Form.useForm();
     const dispatch = useAppDispatch();
     const getOne = () => {
-        MaterialApi.getOne(id).then((res) => {
+        SoleApi.getOne(id).then((res) => {
             form.setFieldsValue(res.data.data);
         });
     };
 
     useEffect(() => {
-        if (id != null && id !== "") {
-            getOne();
+        if (visible && id) {
+            SoleApi.getOne(id).then((res) => {
+                form.setFieldsValue(res.data.data);
+            });
         }
-        form.resetFields();
-        return () => {
-            id = null;
-        };
+
+        if (!visible) {
+            form.resetFields();
+        }
     }, [id, visible]);
+
 
     const handleOk = () => {
         form
@@ -48,9 +51,9 @@ const ModalUpdateMaterial = ({ visible, id, onCancel }) => {
                 });
             })
             .then((trimmedValues) => {
-                MaterialApi.updateMaterial(id, trimmedValues)
+                SoleApi.updatesole(id, trimmedValues)
                     .then((res) => {
-                        dispatch(UpdateMaterial(res.data.data));
+                        dispatch(UpdateSole(res.data.data));
                         message.success("Cập nhật thành công");
                         onCancel();
                         form.resetFields();
@@ -129,4 +132,4 @@ const ModalUpdateMaterial = ({ visible, id, onCancel }) => {
     );
 };
 
-export default ModalUpdateMaterial;
+export default ModalUpdateSole;

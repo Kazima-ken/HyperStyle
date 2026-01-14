@@ -11,6 +11,7 @@ import com.example.hyperstyle.service.SizeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,12 +34,26 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Size create(@Valid CreateSizeRequest request) {
-        Size check = sizeRepository.findByName(request.getName());
-        if (check != null) {
-            throw new RestApiException("Size Đã Tồn Tại");
+        String name = request.getName().trim();
+        int sizeValue;
+
+        try {
+            sizeValue = Integer.parseInt(name);
+        } catch (NumberFormatException e) {
+            throw new RestApiException("Kích cỡ phải là số!");
         }
+
+        // Chặn theo yêu cầu mới: 30 < size < 60
+        if (sizeValue <= 30 || sizeValue >= 60) {
+            throw new RestApiException("Kích cỡ phải nằm trong khoảng từ 31 đến 59!");
+        }
+
+        if (sizeRepository.existsByName(name)) {
+            throw new RestApiException("Kích cỡ đã tồn tại!");
+        }
+
         Size size = new Size();
-        size.setName(request.getName());
+        size.setName(name);
         size.setStatus(request.getStatus());
         return sizeRepository.save(size);
     }

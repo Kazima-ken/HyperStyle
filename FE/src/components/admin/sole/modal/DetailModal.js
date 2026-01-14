@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Modal } from "antd";
 import moment from "moment";
-import { MaterialApi } from "../../../../api/admin/material/MaterialApi";
+import { SoleApi } from "../../../../api/admin/sole/SoleApi";
 
-const ModalDetailMaterial = ({ visible, id, onCancel }) => {
-  const [material, setMaterial] = useState({});
+const ModalDetailSole = ({ visible, id, onCancel }) => {
+  const [sole, setSole] = useState({});
 
   const getOne = () => {
-    MaterialApi.getOne(id).then((res) => {
-      setMaterial(res.data.data);
+    SoleApi.getOne(id).then((res) => {
+      setSole(res.data.data);
     });
   };
   const handleCancel = () => {
@@ -21,7 +21,7 @@ const ModalDetailMaterial = ({ visible, id, onCancel }) => {
       getOne();
     }
     return () => {
-      setMaterial(null);
+      setSole(null);
       id = null;
     };
   }, [id, visible]);
@@ -35,14 +35,14 @@ const ModalDetailMaterial = ({ visible, id, onCancel }) => {
     >
       <Form layout="vertical">
         <Form.Item label="Tên thể loại">
-          <Input value={material != null ? material.name : null} readOnly />
+          <Input value={sole != null ? sole.name : null} readOnly />
         </Form.Item>
 
         <Form.Item label="Trạng thái">
           <Input
             value={
-              material != null
-                ? material.status == "DANG_SU_DUNG"
+              sole != null
+                ? sole.status == "DANG_SU_DUNG"
                   ? "Đang sử dụng"
                   : "Không sử dụng"
                 : null
@@ -56,4 +56,4 @@ const ModalDetailMaterial = ({ visible, id, onCancel }) => {
   );
 };
 
-export default ModalDetailMaterial;
+export default ModalDetailSole;

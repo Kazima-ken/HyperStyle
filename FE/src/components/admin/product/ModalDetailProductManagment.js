@@ -321,7 +321,7 @@ const ModalDetailProductManagment = ({ id, visible, onCancel }) => {
                 >
                   <Option value="">Tất cả</Option>
                   {listBrand.map((brand, index) => (
-                    <Option key={index} value={brand.name}>
+                    <Option key={index} value={brand.name} >
                       {brand.name}
                     </Option>
                   ))}

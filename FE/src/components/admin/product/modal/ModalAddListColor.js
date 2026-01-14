@@ -1,49 +1,25 @@
-import { Modal, Input, Select, Button, Form, Row, Col, message } from "antd";
+import { Modal, Input, Select, Button, Form, Row, Col, message, Tooltip, Tag, Divider } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../../app/Hook";
-import tinycolor from "tinycolor2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { ColorApi } from "../../../../api/admin/color/ColorApi";
-import {
-  CreateColor,
-  GetColor,
-  SetColor,
-} from "../../../../app/reducer/ColorReducer";
-
+import { CreateColor, GetColor, SetColor } from "../../../../app/reducer/ColorReducer";
 import convert from "color-convert";
 
 const AddColorModal = ({ visible, onCancel, onSaveData }) => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [isAddModalVisible, setAddModalVisible] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const initialValues = {
-    code: "",
-    name: "",
-    status: "DANG_SU_DUNG",
-  };
+  const [selected, setSelected] = useState([]); // Lưu mảng mã màu đã chọn
+  const [listColor, setListColor] = useState([]);
+  const [colorPickerValue, setColorPickerValue] = useState("#1890ff");
 
   const data = useAppSelector(GetColor);
+
   useEffect(() => {
-    if (data != null) {
-      setListColor(data);
-    }
+    if (data) setListColor(data);
   }, [data]);
-
-  const [listColor, setListColor] = useState([]);
-
-  const getColorName = (colorCode) => {
-    const hexCode = colorCode.replace("#", "").toUpperCase();
-    const rgb = convert.hex.rgb(hexCode);
-    const colorName = convert.rgb.keyword(rgb);
-
-    if (colorName === null) {
-      return "Unknown";
-    } else {
-      return colorName;
-    }
-  };
 
   const getList = () => {
     ColorApi.getAllCode().then((res) => {
@@ -52,177 +28,176 @@ const AddColorModal = ({ visible, onCancel, onSaveData }) => {
     });
   };
 
-  const toggleSelection = (color) => {
-    setSelected((prevSelected) =>
-      prevSelected.includes(color)
-        ? prevSelected.filter((selected) => selected !== color)
-        : [...prevSelected, color]
-    );
-  };
-
   useEffect(() => {
     getList();
   }, []);
 
+  const toggleSelection = (colorCode) => {
+    setSelected((prev) =>
+      prev.includes(colorCode)
+        ? prev.filter((item) => item !== colorCode)
+        : [...prev, colorCode]
+    );
+  };
+
   const handleOk = () => {
+    if (selected.length === 0) {
+      message.warning("Vui lòng chọn ít nhất một màu sắc!");
+      return;
+    }
     onSaveData(selected);
     setSelected([]);
     onCancel();
   };
 
-  const handleOkAdd = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        return new Promise((resolve, reject) => {
-          Modal.confirm({
-            title: "Xác nhận",
-            content: "Bạn có đồng ý thêm không?",
-            okText: "Đồng ý",
-            cancelText: "Hủy",
-            onOk: () => resolve(values),
-            onCancel: () => reject(),
-          });
-        });
-      })
-      .then((values) => {
-        ColorApi.create(values)
-          .then((res) => {
-            console.log(res.data.data);
-            dispatch(CreateColor(res.data.data));
-            message.success("Thêm thành công");
-            form.resetFields();
-            setAddModalVisible(false);
-          })
-          .catch((error) => {
-            message.error(error.response.data.message);
-            console.log("Create failed:", error);
-          });
-      })
-      .catch(() => {
-        // Xử lý khi người dùng từ chối xác nhận
-      });
-  };
-
-  const handleCancel = () => {
-    setAddModalVisible(false);
-    form.resetFields();
-    onCancel();
+  // --- LOGIC XỬ LÝ MÀU ---
+  const handleColorPickerChange = (e) => {
+    const maMau = e.target.value.toUpperCase();
+    setColorPickerValue(maMau);
+    try {
+      const rgb = convert.hex.rgb(maMau.replace("#", ""));
+      const colorName = convert.rgb.keyword(rgb) || "New Color";
+      form.setFieldsValue({ code: maMau, name: colorName });
+    } catch (err) {
+      form.setFieldsValue({ code: maMau });
+    }
   };
 
   return (
     <>
       <Modal
-        title="Chọn màu sắc "
+        title={<span style={{ fontSize: 20, fontWeight: 700 }}>Bảng chọn màu sắc</span>}
         open={visible}
         onOk={handleOk}
-        onCancel={handleCancel}
-        okText="Thêm"
-        cancelText="Hủy"
-        bodyStyle={{ maxHeight: "50vh", overflowY: "auto" }}
+        onCancel={onCancel}
+        okText="Xác nhận chọn"
+        cancelText="Đóng"
+        width={800}
+        bodyStyle={{ padding: '20px 24px' }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: 16,
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <span style={{ color: '#8c8c8c' }}>Đã chọn: <b style={{ color: '#1890ff' }}>{selected.length}</b> màu sắc</span>
           <Button
             onClick={() => setAddModalVisible(true)}
             icon={<FontAwesomeIcon icon={faPlus} />}
+            type="primary"
+            shape="round"
           >
-            Thêm màu sắc
+            Tạo màu mới
           </Button>
         </div>
-        <Row gutter={[16, 16]}>
-          {/* Hiển thị các nút button cho các kích thước */}
-          {listColor.map((color) => (
-            <Col key={color} span={6}>
-              <Button
-                block
-                title={color.name}
-                style={{ backgroundColor: color.code }}
-                className={selected.includes(color.code) ? "selected" : ""}
-                onClick={() => toggleSelection(color.code)}
-              >
-              </Button>
-            </Col>
-          ))}
-        </Row>
+
+        <div style={{ maxHeight: "400px", overflowY: "auto", overflowX: "hidden", padding: "4px" }}>
+          <Row gutter={[16, 16]}>
+            {listColor.map((color) => {
+              const isSelected = selected.includes(color.code);
+              return (
+                <Col key={color.id || color.code} xs={12} sm={8} md={6}>
+                  <div
+                    onClick={() => toggleSelection(color.code)}
+                    style={{
+                      cursor: "pointer",
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: isSelected ? "2px solid #1890ff" : "1px solid #f0f0f0",
+                      backgroundColor: isSelected ? "#e6f7ff" : "#fff",
+                      transition: "all 0.3s",
+                      position: "relative",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    {isSelected && (
+                      <FontAwesomeIcon
+                        icon={faCheckCircle}
+                        style={{ position: "absolute", top: 5, right: 5, color: "#1890ff" }}
+                      />
+                    )}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "40px",
+                        borderRadius: "8px",
+                        backgroundColor: color.code,
+                        boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.05)"
+                      }}
+                    />
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontWeight: 600, fontSize: "13px", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '120px' }}>
+                        {color.name}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#8c8c8c" }}>{color.code}</div>
+                    </div>
+                  </div>
+                </Col>
+              );
+            })}
+          </Row>
+        </div>
       </Modal>
 
+      {/* --- MODAL THÊM MỚI (Giao diện hiện đại) --- */}
       <Modal
-        title="Thêm màu sắc"
-        visible={isAddModalVisible}
-        onCancel={() => setAddModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setAddModalVisible(false)}>
-            Hủy
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleOkAdd}>
-            Thêm
-          </Button>,
-        ]}
+        title={<span style={{ fontWeight: 700 }}>Thêm màu sắc vào hệ thống</span>}
+        open={isAddModalVisible}
+        onCancel={() => { setAddModalVisible(false); form.resetFields(); }}
+        onOk={() => {
+          form.validateFields().then(async (values) => {
+            try {
+              await ColorApi.createcolor(values);
+              message.success("Thành công!");
+              setAddModalVisible(false);
+              form.resetFields();
+              getList();
+            } catch (err) {
+              message.error(err.response?.data?.message || "Lỗi!");
+            }
+          });
+        }}
+        width={500}
+        okText="Lưu dữ liệu"
       >
-        <Form form={form} layout="vertical" initialValues={initialValues}>
+        <Divider style={{ marginTop: 0 }} />
+        <Form form={form} layout="vertical" initialValues={{ status: "DANG_SU_DUNG" }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{
+              display: 'inline-block',
+              padding: '8px',
+              borderRadius: '50%',
+              border: '2px dashed #d9d9d9',
+              marginBottom: 8
+            }}>
+              <input
+                type="color"
+                value={colorPickerValue}
+                onChange={handleColorPickerChange}
+                style={{ width: 80, height: 80, border: 'none', borderRadius: '50%', cursor: 'pointer', padding: 0 }}
+              />
+            </div>
+            <p style={{ color: '#8c8c8c', fontSize: 12 }}>Nhấp vào vòng tròn để chọn màu nhanh</p>
+          </div>
+
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
-                label="Bảng màu"
-                name="code"
-                rules={[
-                  { required: true, message: "Vui lòng nhập tên thương hiệu" },
-                  { max: 50, message: "Tên thương hiệu tối đa 50 ký tự" },
-                ]}
-              >
-                <Input
-                  type="color"
-                  style={{ height: "250px" }}
-                  onChange={(e) => {
-                    const maMau = e.target.value;
-                    const tenMau = getColorName(maMau);
-                    form.setFieldsValue({ name: tenMau }); // Cập nhật giá trị cho trường "Tên màu sắc"
-                  }}
-                />
+              <Form.Item label="Mã màu (Hex)" name="code" rules={[{ required: true, message: 'Cần mã màu' }]}>
+                <Input prefix="#" placeholder="FFFFFF" maxLength={7} onChange={(e) => setColorPickerValue(e.target.value.startsWith('#') ? e.target.value : '#' + e.target.value)} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label="Mã màu sắc"
-                name="code"
-                rules={[
-                  { required: true, message: "Vui lòng nhập mã màu" },
-                  { max: 50, message: "Tên thương hiệu tối đa 50 ký tự" },
-                ]}
-              >
-                <Input placeholder="Tên mã màu" style={{ height: "40px" }} />
-              </Form.Item>
-              <Form.Item
-                label="Tên màu sắc"
-                name="name"
-                rules={[
-                  { required: true, message: "Vui lòng nhập tên màu" },
-                  { max: 50, message: "Tên thương hiệu tối đa 50 ký tự" },
-                ]}
-              >
-                <Input placeholder="Tên màu sắc" style={{ height: "40px" }} />
-              </Form.Item>
-              <Form.Item
-                label="Trạng thái"
-                name="status"
-                rules={[
-                  { required: true, message: "Vui lòng chọn trạng thái" },
-                ]}
-              >
-                <Select defaultValue="DANG_SU_DUNG">
-                  <Select.Option value="DANG_SU_DUNG">
-                    Đang sử dụng
-                  </Select.Option>
-                </Select>
+              <Form.Item label="Tên màu sắc" name="name" rules={[{ required: true, message: 'Cần tên màu' }]}>
+                <Input placeholder="Ví dụ: Đỏ Đô" />
               </Form.Item>
             </Col>
           </Row>
+
+          <Form.Item label="Trạng thái hoạt động" name="status">
+            <Select>
+              <Select.Option value="DANG_SU_DUNG">Hoạt động (Đang kinh doanh)</Select.Option>
+              <Select.Option value="KHONG_SU_DUNG">Ngừng hoạt động</Select.Option>
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
     </>

@@ -2,12 +2,12 @@ import React from "react";
 import { Modal, Input, Select, Button, Form, message } from "antd";
 import { useAppDispatch } from "../../../../app/Hook";
 
-import { MaterialApi } from "../../../../api/admin/material/MaterialApi";
-import { CreateMaterial } from "../../../../app/reducer/MaterialReducer";
+import { SoleApi } from "../../../../api/admin/sole/SoleApi";
+import { CreateSole } from "../../../../app/reducer/SoleReducer";
 
 const { Option } = Select;
 
-const ModalCreateMaterial = ({ visible, onCancel }) => {
+const ModalCreateSole = ({ visible, onCancel }) => {
     const [form] = Form.useForm();
     const dispatch = useAppDispatch();
     const initialValues = {
@@ -36,9 +36,9 @@ const ModalCreateMaterial = ({ visible, onCancel }) => {
                 });
             })
             .then((trimmedValues) => {
-                MaterialApi.createMaterial(trimmedValues)
+                SoleApi.createsole(trimmedValues)
                     .then((res) => {
-                        dispatch(CreateMaterial(res.data.data));
+                        dispatch(CreateSole(res.data.data));
                         message.success("Thêm thành công");
                         form.resetFields();
                         onCancel();
@@ -119,4 +119,4 @@ const ModalCreateMaterial = ({ visible, onCancel }) => {
     );
 };
 
-export default ModalCreateMaterial;
+export default ModalCreateSole;

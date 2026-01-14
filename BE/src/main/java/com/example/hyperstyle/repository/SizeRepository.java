@@ -16,7 +16,7 @@ public interface SizeRepository extends JpaRepository<Size, String> {
 
     @Query(value = """
             select 
-            ROW_NUMBER() OVER (ORDER BY siz.id DESC) as stt,
+            ROW_NUMBER() OVER (ORDER BY siz.name ASC ) as stt,
             siz.id as id,
             siz.name as name,
             siz.status as status,
@@ -37,7 +37,9 @@ public interface SizeRepository extends JpaRepository<Size, String> {
     List<SizeResponse> getAll(@Param("request") FindSizeRequest request);
 
 
-    Size findByName(String name);
+    Size findByName(String String);
+
+    Boolean existsByName(String String);
 
     
 }

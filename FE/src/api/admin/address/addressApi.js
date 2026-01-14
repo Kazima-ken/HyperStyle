@@ -1,11 +1,28 @@
 import { request, requestAdress } from "../../../config/Request";
 
 export class AddressApi {
+    // --- CÁC HÀM BACKEND CỦA BẠN (GIỮ NGUYÊN) ---
     static a = (filter) => {
         return request({
             method: "GET",
             url: `/admin/address`,
             params: filter,
+        });
+    };
+
+    static getOne = (id) => {
+        return request({
+            method: "GET",
+            url: `/admin/address/${id}`,
+        });
+    };
+
+    // 2. Hàm cập nhật địa chỉ (update)
+    static update = (id, data) => {
+        return request({
+            method: "PUT", // Hoặc POST tùy backend của bạn quy định
+            url: `/admin/address/${id}`,
+            data: data,
         });
     };
 
@@ -16,7 +33,7 @@ export class AddressApi {
         });
     };
 
-        static getAllAddressByAccount = (idAccount) => {
+    static getAllAddressByAccount = (idAccount) => {
         return request({
             method: "GET",
             url: `/admin/address/address-account/${idAccount}`,
@@ -104,7 +121,7 @@ export class AddressApi {
                 shop_id: parseInt(shop_id),
             },
             params: {
-                service_id: service_id, // Truyền ID lấy từ API trên vào đây
+                service_id: service_id,
                 insurance_value: insurance_value,
                 coupon: null,
                 from_district_id: 1450,

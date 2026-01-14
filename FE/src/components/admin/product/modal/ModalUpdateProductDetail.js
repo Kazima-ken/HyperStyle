@@ -28,10 +28,6 @@ import { MaterialApi } from "../../../../api/admin/material/MaterialApi";
 import { CategoryApi } from "../../../../api/admin/category/CategoryApi";
 import { SoleApi } from "../../../../api/admin/sole/SoleApi";
 import { BrandApi } from "../../../../api/admin/brand/BrandApi";
-import ModalCreateSole from "../../sole/modal/CreateModel";
-import ModalCreateBrand from "../../brand/modal/CreateModel";
-import ModalCreateCategory from "../../category/modal/CreateModel";
-import ModalCreateMaterial from "../../material/modal/CreateModel";
 import { ProductDetailApi } from '../../../../api/admin/productDetail/productDetailApi';
 import { ProductApi } from '../../../../api/admin/product/ProductApi';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -117,11 +113,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
 
   const dispatch = useAppDispatch();
   const status = "DANG_SU_DUNG";
-  const [modalAddSole, setModalAddSole] = useState(false);
-  const [modalAddCategopry, setModalAddCategory] = useState(false);
-  const [modalAddMaterial, setModalAddMaterial] = useState(false);
-  const [modalAddBrand, setModalAddBrand] = useState(false);
-  const [modalAddColor, setModalAddColor] = useState(false);
 
   const dataSole = useAppSelector(GetSole);
   const dataCategory = useAppSelector(GetCategory);
@@ -130,13 +121,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
   const dataSize = useAppSelector(GetSize);
   const dataColor = useAppSelector(GetColor);
 
-  const handleCancel = () => {
-    setModalAddSole(false);
-    setModalAddBrand(false);
-    setModalAddMaterial(false);
-    setModalAddCategory(false);
-    setModalAddColor(false);
-  };
 
   const getList = () => {
     MaterialApi.getAllMaterial({
@@ -159,14 +143,12 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
     }).then((res) => {
       dispatch(SetBrand(res.data.data));
     });
-    SizeApi.getAllSize({
-      status: status,
-    }).then((res) => {
+    SizeApi.getAllSize({ status: "DANG_SU_DUNG" }).then((res) => {
+      console.log("size", res.data.data)
       dispatch(SetSize(res.data.data));
     });
-    ColorApi.getAllcolor({
-      status: status,
-    }).then((res) => {
+    ColorApi.getAllcolor({ status: "DANG_SU_DUNG" }).then((res) => {
+      console.log("color", res.data.data)
       dispatch(SetColor(res.data.data));
     });
   };
@@ -252,7 +234,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
       open={visible}
       onCancel={onCancel}
       width="70%"
-      style={{ height: "65vh", overflowY: "auto" }}
+      style={{ height: "65vh", overflowY: "auto", border: "2px solid brown", borderRadius: "10px" }}
       footer={[
         <Button key="cancel" onClick={onCancel}>
           Hủy
@@ -302,7 +284,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
               { required: true, message: "Vui lòng nhập mô tả sản phẩm" },
             ]}
           >
-            <Input.TextArea rows={4} placeholder="Nhập mô tả sản phẩm" />
+            <Input.TextArea rows={4} placeholder="Nhập mô tả sản phẩm" readOnly />
           </Form.Item>
           <br />
 
@@ -316,7 +298,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                   { required: true, message: "Vui lòng chọn thương hiệu" },
                 ]}
               >
-                <Select placeholder="Chọn thương hiệu">
+                <Select placeholder="Chọn thương hiệu" disabled>
                   {dataBrand.map((brand, index) => (
                     <Option key={index} value={brand.id}>
                       <span style={{ fontWeight: "bold" }}>{brand.name}</span>
@@ -327,14 +309,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={5}>
               <Form.Item>
-                <Tooltip title="Thêm thương hiệu">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                    onClick={() => setModalAddBrand(true)}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -364,11 +338,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={2}>
               <Form.Item>
-                <Button
-                  type="primary"
-                  icon={<FontAwesomeIcon icon={faPlus} />}
-                  style={{ height: 30 }}
-                ></Button>
               </Form.Item>
             </Col>
           </Row>
@@ -383,7 +352,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                   { required: true, message: "Vui lòng chọn thương hiệu" },
                 ]}
               >
-                <Select placeholder="Chọn chất liệu">
+                <Select placeholder="Chọn chất liệu" disabled>
                   {dataMaterial.map((material, index) => (
                     <Option key={index} value={material.id}>
                       <span style={{ fontWeight: "bold" }}>
@@ -396,14 +365,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={5}>
               <Form.Item>
-                <Tooltip title="Thêm vật liệu">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                    onClick={() => setModalAddMaterial(true)}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -413,7 +374,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                 style={{ fontWeight: "bold" }}
                 rules={[{ required: true, message: "Vui lòng chọn thể loại" }]}
               >
-                <Select placeholder="Chọn đế giày">
+                <Select placeholder="Chọn đế giày" disabled>
                   {dataSole.map((sole, index) => (
                     <Option key={index} value={sole.id}>
                       <span style={{ fontWeight: "bold" }}>{sole.name}</span>
@@ -424,14 +385,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={2}>
               <Form.Item>
-                <Tooltip title="Thêm đế giày">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                    onClick={() => setModalAddSole(true)}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
           </Row>
@@ -444,7 +397,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                 style={{ fontWeight: "bold" }}
                 rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
               >
-                <Select placeholder="Chọn giới tính">
+                <Select placeholder="Chọn giới tính" disabled>
                   <Option value="NAM">
                     <span style={{ fontWeight: "bold" }}>Nam</span>
                   </Option>
@@ -461,13 +414,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={5}>
               <Form.Item>
-                <Tooltip title="Thêm giới tính">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -477,7 +423,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                 style={{ fontWeight: "bold" }}
                 rules={[{ required: true, message: "Vui lòng chọn thể loại" }]}
               >
-                <Select placeholder="Chọn thể loại">
+                <Select placeholder="Chọn thể loại" disabled>
                   {dataCategory.map((category, index) => (
                     <Option key={index} value={category.id}>
                       <span style={{ fontWeight: "bold" }}>
@@ -490,14 +436,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             </Col>
             <Col span={2}>
               <Form.Item>
-                <Tooltip title="Thêm thể loại">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                    onClick={() => setModalAddCategory(true)}
-                  ></Button>
-                </Tooltip>
               </Form.Item>
             </Col>
           </Row>
@@ -505,66 +443,54 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
           <Row gutter={7} justify="space-around">
             <Col span={8}>
               <Form.Item
-                label="Màu Sắc"
+                label="Màu sắc"
                 name="colorId"
-                style={{ fontWeight: "bold" }}
-                rules={[{ required: true, message: "Vui lòng chọn màu sắc" }]}
+                rules={[{ required: true }]}
               >
-                <Select placeholder="Chọn màu sắc">
-                  {dataColor.map((color, index) => (
-                    <Option key={index} value={color.id}>
+                <Select
+                  disabled
+                  options={dataColor.map(color => ({
+                    value: color.id,
+                    label: (
                       <div
                         style={{
-                          backgroundColor: color.code,
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "5px",
+                          backgroundColor: color.code, // Đảm bảo color.code là mã hex (vd: #FF0000)
+                          height: 20,
+                          width: '100%', // <--- THÊM DÒNG NÀY
+                          borderRadius: 4,
+                          border: "1px solid #ccc"
                         }}
-                      ></div>
-                    </Option>
-                  ))}
-                </Select>
+                      />
+                    )
+                  }))}
+                />
               </Form.Item>
+
+
             </Col>
             <Col span={5}>
               <Form.Item>
-                <Tooltip title="Thêm màu sắc">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                    onClick={() => setModalAddColor(true)}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
-                label="Kích Cỡ"
+                label="Kích cỡ"
                 name="sizeId"
-                style={{ fontWeight: "bold" }}
-                rules={[
-                  { required: true, message: "Vui lòng nhập kích cỡ sản phẩm" },
-                ]}
+                rules={[{ required: true }]}
               >
-                <Select placeholder="Chọn kích cỡ">
-                  {dataSize.map((size, index) => (
-                    <Option key={index} value={size.id}>
-                      <span style={{ fontWeight: "bold" }}>{size.name}</span>
-                    </Option>
-                  ))}
-                </Select>
+                <Select
+                  disabled
+                  options={dataSize.map(size => ({
+                    value: size.id,
+                    label: size.name
+                  }))}
+                />
               </Form.Item>
+
+
             </Col>
             <Col span={2}>
               <Form.Item>
-                <Tooltip title="Thêm kích thước">
-                  <Button
-                    type="primary"
-                    icon={<FontAwesomeIcon icon={faPlus} />}
-                    style={{ height: 30 }}
-                  />
-                </Tooltip>
               </Form.Item>
             </Col>
           </Row>
@@ -601,6 +527,7 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
                 ]}
               >
                 <NumberFormat
+                  disabled
                   thousandSeparator={true}
                   suffix=" VND"
                   placeholder="Nhập giá sản phẩm"
@@ -616,17 +543,6 @@ const ModalUpdateProductDetail = ({ id, visible, onCancel }) => {
             <Col span={2}></Col>
           </Row>
         </Form>
-        <ModalCreateSole visible={modalAddSole} onCancel={handleCancel} />
-        <ModalCreateBrand visible={modalAddBrand} onCancel={handleCancel} />
-        <ModalCreateCategory
-          visible={modalAddCategopry}
-          onCancel={handleCancel}
-        />
-        <ModalCreateMaterial
-          visible={modalAddMaterial}
-          onCancel={handleCancel}
-        />
-        <ModalCreateColor visible={modalAddColor} onCancel={handleCancel} />
       </div>
     </Modal>
   );

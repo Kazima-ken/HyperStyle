@@ -2,6 +2,7 @@ package com.example.hyperstyle.service.Impl;
 
 import com.example.hyperstyle.dto.request.address.CreateAddressRequest;
 import com.example.hyperstyle.dto.request.address.FindAddressRequest;
+import com.example.hyperstyle.dto.request.address.UpdateAddressRequest;
 import com.example.hyperstyle.dto.response.address.AddressResponse;
 import com.example.hyperstyle.dto.response.address.AddressUserReponse;
 import com.example.hyperstyle.dto.response.staff.StaffFullResponse;
@@ -63,23 +64,17 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    @Transactional // Thêm cái này để đảm bảo load được User (do fetch = LAZY)
+    @Transactional
     public Address createByAccount(CreateAddressRequest req) {
-        // 1. Tìm Account
         Account account = accountRepository.findById(req.getUserId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + req.getUserId()));
 
-        // 2. Lấy User từ Account (SỬA LẠI: Lấy trực tiếp, không query)
         User user = account.getUser();
 
-        // Kiểm tra kỹ an toàn dữ liệu
         if (user == null) {
             throw new RuntimeException("Tài khoản này chưa liên kết với thông tin người dùng (User is null)");
         }
 
-        // 3. Kiểm tra địa chỉ mặc định
-        // QUAN TRỌNG: Address gắn với User, nên phải dùng ID của User để check, KHÔNG dùng ID Account
-        // Code cũ: ...getAllAddressByStatus(..., account.getId()) -> SAI
         List<Address> checkStatusAddress = addressRepository.getAllAddressByStatus(Status.DANG_SU_DUNG, user.getId());
 
         // 4. Tạo Address
@@ -93,9 +88,8 @@ public class AddressServiceImpl implements AddressService {
                 .wardCode(req.getWardCode())
                 .fullName(req.getFullName())
                 .phoneNumber(req.getPhoneNumber())
-                .user(user); // Gán object User vào Address
+                .user(user);
 
-        // 5. Logic set trạng thái (nếu chưa có địa chỉ nào -> Mặc định, ngược lại -> Thường)
         if (checkStatusAddress.isEmpty()) {
             addressBuilder.status(Status.DANG_SU_DUNG);
         } else {
@@ -142,4 +136,52 @@ public class AddressServiceImpl implements AddressService {
     public List<AddressUserReponse> getAddressByAccountId(String id) {
         return addressRepository.getAddressByAccountId(id);
     }
+
+    @Override
+    public Address getOne(String id) {
+        return addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ với ID: " + id));
+    }
+
+    @Override
+    public Address update(String id, UpdateAddressRequest request) {
+        // 1. Tìm địa chỉ cũ
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ"));
+
+        // 2. Map dữ liệu từ Request sang Entity
+        address.setFullName(request.getFullName());
+        address.setPhoneNumber(request.getPhoneNumber());
+        address.setLine(request.getLine());
+        address.setProvince(request.getProvince());
+        address.setDistrict(request.getDistrict());
+        address.setWard(request.getWard());
+        address.setProvinceId(request.getProvinceId());
+        address.setDistrictId(request.getDistrictId());
+        address.setWardCode(request.getWardCode());
+
+        // 3. Xử lý Logic TRẠNG THÁI (Nếu chọn Mặc định -> Hủy mặc định cái cũ)
+        if (request.getStatus() == Status.DANG_SU_DUNG) { // Giả sử DANG_SU_DUNG là Mặc định
+            String userId = address.getUser().getId();
+
+            // Tìm các địa chỉ đang active khác của user này
+            List<Address> defaultAddresses = addressRepository.findAllByUserIdAndStatus(userId, Status.DANG_SU_DUNG);
+
+            for (Address addr : defaultAddresses) {
+                // Nếu không phải là địa chỉ đang sửa thì set về KHONG_SU_DUNG
+                if (!addr.getId().equals(id)) {
+                    addr.setStatus(Status.KHONG_SU_DUNG);
+                    addressRepository.save(addr);
+                }
+            }
+            address.setStatus(Status.DANG_SU_DUNG);
+        } else {
+            // Nếu không chọn mặc định
+            address.setStatus(Status.KHONG_SU_DUNG);
+        }
+
+        // 4. Lưu và trả về
+        return addressRepository.save(address);
+    }
+
 }

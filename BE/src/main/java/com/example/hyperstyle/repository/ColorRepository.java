@@ -15,7 +15,7 @@ public interface ColorRepository extends JpaRepository<Color, String> {
 
     @Query(value = """
             select
-                ROW_NUMBER() OVER (ORDER BY col.id DESC) as stt,
+                ROW_NUMBER() OVER (ORDER BY col.code DESC) as stt,
                 col.id as id,
                 col.name as name,
                 col.code as code,                
@@ -45,12 +45,16 @@ public interface ColorRepository extends JpaRepository<Color, String> {
     Color getOneByCode(@Param("code") String code);
 
     @Query("SELECT DISTINCT  c FROM  Color c ")
-    List<Color> getAllCode ();
+    List<Color> getAllCode();
 
 
     @Query(value = """
             select * from color c where c.name =:name and c.id =:id
             """, nativeQuery = true)
     Color findByNameExists(@Param("id") String id, @Param("name") String name);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByCodeIgnoreCase(String code);
 
 }

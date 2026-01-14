@@ -679,28 +679,6 @@ const UpdateProductDetailManagment = () => {
             Danh sách sản phẩm chi tiết
           </span>
           <div style={{ marginLeft: "auto" }}>
-            <Tooltip title=" Chỉnh số lượng và giá chung">
-              <Button
-                className="btn_filter"
-                onClick={showModalQuantityAndPrice}
-                style={{
-                  height: "40px",
-                  margin: "0px 20px",
-                }}
-              >
-                Chỉnh số lượng và giá chung
-              </Button>
-            </Tooltip>
-            <Tooltip title=" Cập nhập ">
-              <Button
-                className="btn_filter"
-                icon={<FontAwesomeIcon icon={faEdit} />}
-                style={{ height: 40 }}
-                onClick={handleUpload}
-              >
-                Update sản phẩm
-              </Button>
-            </Tooltip>
           </div>
         </div>
         <div style={{ marginTop: "25px" }}>

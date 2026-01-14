@@ -80,6 +80,12 @@ const CreateProductManagment = () => {
         setValueInput(value);
     };
 
+    const [fileList, setFileList] = useState([]);
+
+    const handleUploadChange = ({ fileList: newFileList }) => {
+        setFileList(newFileList);
+    };
+
     console.log("Data: ", dataBrand);
     const generateProductCode = () => {
         const randomNumber = Math.floor(
@@ -105,20 +111,17 @@ const CreateProductManagment = () => {
 
     const handleSaveData = (selectedSizeData) => {
         console.log(selectedSizeData);
-        selectedSizeData.forEach((selectedSizeData) => {
+        selectedSizeData.forEach((item) => {
             const existingSize = listSizeAdd.find(
-                (item) => item.nameSize === selectedSizeData.size
+                (s) => s.nameSize === item.nameSize
             );
+
             if (existingSize) {
-                message.warning(
-                    `Kích cỡ ${selectedSizeData.size} đã tồn tại trong danh sách!`
-                );
+                message.warning(`Kích cỡ ${item.nameSize} đã tồn tại`);
             } else {
-                setListSizeAdd((prevList) => [
-                    ...prevList,
-                    {
-                        nameSize: selectedSizeData.size,
-                    },
+                setListSizeAdd((prev) => [
+                    ...prev,
+                    { nameSize: item.nameSize }
                 ]);
             }
         });
@@ -189,6 +192,12 @@ const CreateProductManagment = () => {
         });
     };
 
+    const [pagination, setPagination] = useState({ current: 1, pageSize: 5 });
+
+    const handleTableChange = (pagination) => {
+        setPagination(pagination);
+    };
+
 
     const handleUpload = async () => {
         try {
@@ -224,14 +233,27 @@ const CreateProductManagment = () => {
             return;
         }
 
+        if (!allValues.description || !allValues.description.trim()) {
+            message.error("Mô tả sản phẩm không được để trống");
+            return;
+        }
+
+
+        if (!allValues.materialId || !allValues.materialId.trim() && !allValues.soleId || !allValues.soleId.trim() &&
+            !allValues.brandId || !allValues.brandId.trim() && !allValues.categoryId || !allValues.categoryId.trim()
+            && !allValues.gender || !allValues.gender.trim()) {
+            message.error("Chi tiết sản phẩm không được để trống");
+            return;
+        }
+
         try {
             let avatarFile = null;
-            if (listColorAndFileData?.length > 0) {
-                const firstColorGroup = listColorAndFileData[0];
-                if (firstColorGroup.fileData?.length > 0) {
-                    avatarFile = firstColorGroup.fileData[0].originFileObj;
-                }
+
+
+            if (fileList && fileList.length > 0) {
+                avatarFile = fileList[0].originFileObj;
             }
+            // --------------------
 
             const productFormData = new FormData();
             const productRequest = {
@@ -247,6 +269,9 @@ const CreateProductManagment = () => {
             productFormData.append("request", JSON.stringify(productRequest));
             if (avatarFile) {
                 productFormData.append("file", avatarFile);
+            } else {
+                message.error("Vui lòng chọn ảnh đại diện cho sản phẩm");
+                return;
             }
 
             const createProductResponse = await ProductApi.create(productFormData);
@@ -282,8 +307,6 @@ const CreateProductManagment = () => {
                     description: allValues.description,
                     gender: allValues.gender,
                     status: "DANG_SU_DUNG",
-
-                    // --- QUAN TRỌNG: Lấy dữ liệu từ dòng trong bảng ---
                     quantity: currentQuantity,
                     price: currentPrice
                 };
@@ -330,97 +353,47 @@ const CreateProductManagment = () => {
             dataIndex: "quantity",
             key: "quantity",
             align: "center",
-            width: "10%",
+            width: "15%", // Tăng width cho đẹp
             render: (_, record) => (
                 <InputNumber
                     min={1}
                     value={record.quantity}
-                    onChange={(value) => handleQuantityChange(value, record.key)} />),
-        }, {
+                    onChange={(value) => handleQuantityChange(value, record.key)}
+                />
+            ),
+        },
+        {
             title: "Giá Bán",
             dataIndex: "price",
             key: "price",
             align: "center",
-            width: "15%",
+            width: "20%", // Tăng width cho đẹp
             render: (_, record) => (
                 <InputNumber
                     min={100000}
                     style={{ width: "100%" }}
                     value={record.price}
-                    formatter={(value) =>
-                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                    }
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
                     parser={(value) => value.replace(/\./g, "")}
-                    onChange={(value) => {
-                        handlePriceChange(value, record.key);
-                    }}
+                    onChange={(value) => handlePriceChange(value, record.key)}
                 />
             ),
-        }, {
+        },
+        {
             title: "Hành động",
             dataIndex: "action",
             key: "action",
-            width: "5%",
+            width: "10%",
+            align: "center",
             render: (text, record) => (
                 <Space size="middle">
                     <Tooltip title="Xóa chi tiết">
-                        <Button onClick={() => handleDelete(record)} type="danger">
-                            <FontAwesomeIcon
-                                icon={faTrash}
-                                style={{ fontSize: "20px", color: "red" }}
-                            />
+                        <Button onClick={() => handleDelete(record)} danger>
+                            <FontAwesomeIcon icon={faTrash} />
                         </Button>
                     </Tooltip>
-                </Space>),
-        },
-        {
-            title: <div style={{ textAlign: "center" }}>Upload Ảnh</div>,
-            dataIndex: "color",
-            key: "color",
-
-            render: (color, record, index) => {
-                const rowsWithSameColor = tableData.filter(
-                    (item) => item.color === record.color
-                );
-
-                if (index > 0 && record.color === tableData[index - 1].color) {
-                    return null;
-                }
-
-                const colorFileData =
-                    listColorAndFileData.find((item) => item.color === record.color)
-                        ?.fileData || [];
-
-                return (
-                    <Upload
-                        listType="picture-card"
-                        fileList={colorFileData}
-                        accept="image/*"
-                        onPreview={handlePreview}
-                        onChange={(info) => handleUploadImages(info, record)}
-                        customRequest={({ file, onSuccess }) => onSuccess(file)}
-                        maxCount={1}
-                    >
-                        {colorFileData.length >= 1 ? null : uploadButton}
-                    </Upload>
-                );
-            },
-            onCell: (record, rowIndex) => {
-                const rowsWithSameColor = tableData.filter(
-                    (item) => item.color === record.color
-                );
-
-                if (
-                    rowIndex > 0 &&
-                    record.color === tableData[rowIndex - 1].color
-                ) {
-                    return { rowSpan: 0 };
-                }
-
-                return {
-                    rowSpan: rowsWithSameColor.length,
-                };
-            },
+                </Space>
+            ),
         },
     ];
     const handleQuantityChange = (value, key) => {
@@ -508,7 +481,6 @@ const CreateProductManagment = () => {
     );
 
     const [listColorAndFileData, setListColorAndFileData] = useState([]);
-    const [isUploadValid, setUploadValid] = useState(true);
 
     const handleUploadImages = (info, record) => {
         const newFileData = [...listColorAndFileData];
@@ -528,7 +500,6 @@ const CreateProductManagment = () => {
         setListColorAndFileData(newFileData);
     };
 
-    const [selectedProduct, setSelectedProduct] = useState("");
     const [isProductNameValid, setProductNameValid] = useState(false);
     const handleProductNameChange = (value) => {
         setProductNameValid(value.trim() !== "");
@@ -571,27 +542,6 @@ const CreateProductManagment = () => {
     const rowSelection = {
         selectedRowKeys,
         onChange: onSelectChange,
-    };
-    const [openQuantityAndPrice, setQuantityAndPrice] = useState(false);
-    const handleUpdateQuantityAndPrice = (newValues) => {
-        const updatedData = tableData.map((record) => {
-            if (selectedRowKeys.includes(record.key)) {
-                return {
-                    ...record,
-                    quantity: newValues.quantityCustom,
-                    price: newValues.priceCustom,
-                };
-            }
-            return record;
-        });
-        setTableData(updatedData);
-        setQuantityAndPrice(false);
-    };
-    const showModalQuantityAndPrice = () => {
-        setQuantityAndPrice(true);
-    };
-    const handleCancelQuantityAndPrice = () => {
-        setQuantityAndPrice(false);
     };
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -714,22 +664,67 @@ const CreateProductManagment = () => {
 
                     {currentStep === 2 && (
                         <>
-                            <Card title="Kích cỡ & màu sắc" style={{ marginBottom: 24 }}>
-                                <Row gutter={24}>
-                                    <Col span={12}>
-                                        <h4>Kích cỡ</h4>
-                                        {listSizeAdd.map((s, i) => (
-                                            <Tag
-                                                key={i}
-                                                closable
-                                                onClose={(e) => handleDeleteSize(e, i, s.nameSize)}
+                            <Card title="Thông tin thuộc tính" style={{ marginBottom: 24 }}>
+                                {/* CHỈ DÙNG 1 ROW DUY NHẤT ĐỂ CÁC PHẦN TỬ NẰM NGANG */}
+                                <Row gutter={[24, 24]}>
+
+                                    {/* --- CỘT 1: ẢNH ĐẠI DIỆN --- */}
+                                    <Col xs={24} md={8} lg={6}>
+                                        {/* md=8: chia 3 cột trên máy tính. lg=6: chia 4 cột trên màn hình to nếu muốn ảnh nhỏ hơn */}
+                                        <Form.Item
+                                            label={<span style={{ fontWeight: 600 }}>Ảnh đại diện</span>}
+                                            labelCol={{ span: 24 }} // Đưa label lên trên input để tiết kiệm diện tích ngang
+                                        >
+                                            <Upload
+                                                listType="picture-circle"
+                                                fileList={fileList}
+                                                onPreview={handlePreview}
+                                                onChange={handleUploadChange}
+                                                beforeUpload={() => false}
+                                                maxCount={1}
+                                                accept="image/*"
                                             >
-                                                {s.nameSize}
-                                            </Tag>
-                                        ))}
-                                        <Button type="dashed" block onClick={() => setModalAddSize(true)}>
-                                            + Thêm kích cỡ
+                                                {fileList.length >= 1 ? null : (
+                                                    <div>
+                                                        <PlusOutlined />
+                                                        <div style={{ marginTop: 8 }}>Tải ảnh</div>
+                                                    </div>
+                                                )}
+                                            </Upload>
+                                        </Form.Item>
+                                    </Col>
+
+                                    {/* --- CỘT 2: KÍCH CỠ --- */}
+                                    <Col xs={24} md={8} lg={9}>
+                                        <div style={{ marginBottom: 12, fontWeight: 600 }}>Kích cỡ</div>
+
+                                        {/* Khu vực hiển thị Tags */}
+                                        <div style={{
+                                            minHeight: 104, // Tạo chiều cao cố định để giao diện thẳng hàng với cột Ảnh
+                                            border: '1px dashed #d9d9d9',
+                                            borderRadius: 6,
+                                            padding: 8,
+                                            marginBottom: 10,
+                                            background: '#fafafa'
+                                        }}>
+                                            <Space size={[8, 8]} wrap>
+                                                {listSizeAdd.length > 0 ? listSizeAdd.map((s, i) => (
+                                                    <Tag
+                                                        key={i}
+                                                        closable
+                                                        onClose={(e) => handleDeleteSize(e, i, s.nameSize)}
+                                                        color="blue"
+                                                    >
+                                                        {s.nameSize}
+                                                    </Tag>
+                                                )) : <span style={{ color: '#bfbfbf', fontSize: 12 }}>Chưa có kích cỡ...</span>}
+                                            </Space>
+                                        </div>
+
+                                        <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setModalAddSize(true)}>
+                                            Thêm kích cỡ
                                         </Button>
+
                                         <ModalAddListSizeProduct
                                             visible={modalAddSize}
                                             onCancel={handleCancel}
@@ -737,45 +732,63 @@ const CreateProductManagment = () => {
                                         />
                                     </Col>
 
-                                    <Col span={12}>
-                                        <h4>Màu sắc</h4>
-                                        {listColorAdd.map((c, i) => (
-                                            <Tag
-                                                key={i}
-                                                color={c.color}
-                                                closable
-                                                onClose={(e) => handleDeleteColor(e, i, getColorName(c.color))}
-                                            >
-                                                {getColorName(c.color)}
-                                            </Tag>
-                                        ))}
-                                        <Button type="dashed" block onClick={() => setModalAddColor(true)}>
-                                            + Thêm màu sắc
+                                    {/* --- CỘT 3: MÀU SẮC --- */}
+                                    <Col xs={24} md={8} lg={9}>
+                                        <div style={{ marginBottom: 12, fontWeight: 600 }}>Màu sắc</div>
+
+                                        {/* Khu vực hiển thị Tags */}
+                                        <div style={{
+                                            minHeight: 104, // Chiều cao bằng với cột Kích cỡ
+                                            border: '1px dashed #d9d9d9',
+                                            borderRadius: 6,
+                                            padding: 8,
+                                            marginBottom: 10,
+                                            background: '#fafafa'
+                                        }}>
+                                            <Space size={[8, 8]} wrap>
+                                                {listColorAdd.length > 0 ? listColorAdd.map((c, i) => {
+                                                    const colorName = getColorName(c.color);
+                                                    return (
+                                                        <Tag
+                                                            key={i}
+                                                            color={c.color}
+                                                            closable
+                                                            onClose={(e) => handleDeleteColor(e, i, colorName)}
+                                                            style={{
+                                                                border: '1px solid #d9d9d9',
+                                                                color: c.color.toLowerCase() === '#ffffff' || c.color === 'white' ? 'black' : 'auto'
+                                                            }}
+                                                        >
+                                                            {colorName}
+                                                        </Tag>
+                                                    );
+                                                }) : <span style={{ color: '#bfbfbf', fontSize: 12 }}>Chưa có màu sắc...</span>}
+                                            </Space>
+                                        </div>
+
+                                        <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setModalAddColor(true)}>
+                                            Thêm màu sắc
                                         </Button>
+
                                         <AddColorModal
                                             visible={modalAddColor}
                                             onCancel={handleCancel}
                                             onSaveData={handleSaveDataColor}
                                         />
                                     </Col>
+
                                 </Row>
                             </Card>
 
-                            <Card title="Chi tiết sản phẩm">
-                                <Button
-                                    type="primary"
-                                    onClick={showModalQuantityAndPrice}
-                                    style={{ marginBottom: 16 }}
-                                >
-                                    Chỉnh giá & số lượng
-                                </Button>
 
+                            <Card title="Chi tiết sản phẩm">
                                 <Table
                                     rowKey="key"
                                     rowSelection={rowSelection}
                                     columns={columns}
                                     dataSource={tableData}
-                                    pagination={{ pageSize: 5 }}
+                                    pagination={pagination}
+                                    onChange={handleTableChange}
                                 />
                             </Card>
                         </>

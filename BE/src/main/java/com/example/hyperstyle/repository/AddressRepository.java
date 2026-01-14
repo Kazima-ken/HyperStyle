@@ -105,4 +105,10 @@ public interface AddressRepository extends JpaRepository<Address, String> {
 
     List<Address> findByUserIdAndStatus(@Param("idUser") String idUser, @Param("status") Status status);
 
+    List<Address> findAllByUserId(String userId);
+
+    List<Address> findAllByUserIdAndStatus(String userId, Status status);
+
+
+
 }

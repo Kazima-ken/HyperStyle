@@ -91,11 +91,18 @@ function PaymentAccount() {
     }));
   }, [totalBefore, moneyShip]);
 
-  // Effect khi địa chỉ thay đổi -> Tính Ship & Ngày giao
   useEffect(() => {
     if (addressDefault && addressDefault.id) {
-      // Gọi hàm tính toán GHN (Gộp cả phí ship và ngày giao)
-      calculateGhnInfo(addressDefault.districtId, addressDefault.wardCode);
+      console.log("Địa chỉ đã chọn:", addressDefault);
+
+      const distId = addressDefault.districtId || addressDefault.DistrictID;
+      const wardCode = addressDefault.wardCode || addressDefault.WardCode;
+
+      if (distId && wardCode) {
+        calculateGhnInfo(distId, wardCode);
+      } else {
+        console.warn("Thiếu districtId hoặc wardCode để tính ship!");
+      }
 
       const updatedListproductOfBill = listproductOfBill.map((item) => {
         const { nameProduct, nameSize, image, ...rest } = item;
@@ -153,9 +160,6 @@ function PaymentAccount() {
     // Free ship đơn to
     if (totalBefore >= 2000000) {
       setMoneyShip(0);
-      // Vẫn cần chạy tiếp để lấy ngày giao hàng (nếu muốn)
-      // Nhưng nếu logic là free ship thì thôi return luôn cũng được
-      // return; 
     }
 
     try {
@@ -284,14 +288,36 @@ function PaymentAccount() {
   const [addressId, setAddressId] = useState("");
   const [listAddress, setListAddress] = useState([]);
 
-  const changeRadio = (item) => setAddressDefault(item);
+  const changeRadio = (item) => {
+    setAddressDefault({ ...item });
+  };
+
+  useEffect(() => {
+    console.log("addressDefault changed", addressDefault);
+
+    if (!addressDefault?.id) return;
+
+    const distId = addressDefault.districtId || addressDefault.DistrictID;
+    const wardCode = addressDefault.wardCode || addressDefault.WardCode;
+
+    if (distId && wardCode) {
+      calculateGhnInfo(distId, wardCode);
+    }
+  }, [addressDefault]);
+
 
   const handleChangeAddress = () => {
     setIsModalAddressOpen(true);
-    AddressApi.getAllAddressByAccount(idAccount).then((res) => {
-      console.log("idAccount: ", idAccount)
-      setListAddress(res.data.data);
-    });
+    // Đảm bảo idAccount tồn tại trước khi gọi
+    if (idAccount) {
+      AddressApi.getAllAddressByAccount(idAccount).then((res) => {
+        // Thay vì push thêm, hãy set lại mảng mới hoàn toàn
+        const data = res.data.data;
+        if (Array.isArray(data)) {
+          setListAddress(data);
+        }
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -406,7 +432,6 @@ function PaymentAccount() {
         </Row>
       </div>
 
-      {/* CÁC MODAL */}
       <ModalCreateAddressAccount modalAddressAccount={modalAddressAccount} setModalAddressAccount={setModalAddressAccount} getAddressDefault={getAddressDefault} />
       <ModalUpdateAddress visible={modalVisibleUpdateAddress} onCancel={handleCancel} id={addressId} />
       <ModalCreateAddress visible={modalVisibleAddAddress} onCancel={handleCancel} id={userId} />
@@ -417,24 +442,115 @@ function PaymentAccount() {
         onOk={() => setIsModalAddressOpen(false)}
         onCancel={() => setIsModalAddressOpen(false)}
         width={600}
-        footer={[<Button key="back" onClick={() => setIsModalAddressOpen(false)}>Đóng</Button>]}
+        footer={[
+          <Button key="back" onClick={() => setIsModalAddressOpen(false)}>
+            Đóng
+          </Button>,
+        ]}
       >
-        <Button type="dashed" block onClick={() => { setIsModalAddressOpen(false); setModalVisibleAddAddress(true); }} style={{ marginBottom: 20 }}>+ Thêm địa chỉ mới</Button>
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {listAddress.map((item) => (
-            <div className="address-item-select" key={item.id} onClick={() => changeRadio(item)} style={{ cursor: 'pointer', padding: '10px', borderBottom: '1px solid #f0f0f0' }}>
-              <Row align="middle">
-                <Col span={2}><Radio checked={item.id === addressDefault?.id} /></Col>
-                <Col span={18}>
-                  <div style={{ fontWeight: "600" }}>{item.fullName} | {item.phoneNumber}</div>
-                  <div style={{ fontSize: "13px" }}>{item.line}, {item.ward}, {item.district}, {item.province}</div>
-                </Col>
-                <Col span={4} style={{ textAlign: "right" }}>
-                  <Button type="link" onClick={(e) => { e.stopPropagation(); setAddressId(item.id); setModalVisibleUpdateAddress(true); setIsModalAddressOpen(false); }}>Sửa</Button>
-                </Col>
-              </Row>
+        <Button
+          type="dashed"
+          block
+          onClick={() => {
+            setIsModalAddressOpen(false);
+            setModalVisibleAddAddress(true);
+          }}
+          style={{ marginBottom: 20 }}
+        >
+          + Thêm địa chỉ mới
+        </Button>
+        <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+          {/* Kiểm tra nếu listAddress có dữ liệu thì mới map */}
+          {listAddress && listAddress.length > 0 ? (
+            listAddress
+              .filter(
+                (item, index, self) =>
+                  index === self.findIndex((t) => t.id === item.id)
+              )
+              .map((item) => (
+                <div
+                  className="address-item-select"
+                  key={item.id}
+                  onClick={() => {
+                    changeRadio(item);
+                    setIsModalAddressOpen(false); // Chọn xong thì đóng modal luôn cho tiện
+                  }}
+                  style={{
+                    cursor: "pointer",
+                    padding: "15px",
+                    marginBottom: "10px",
+                    border:
+                      addressDefault?.id === item.id
+                        ? "1px solid #ff4400"
+                        : "1px solid #f0f0f0",
+                    borderRadius: "8px",
+                    backgroundColor:
+                      addressDefault?.id === item.id ? "#fff2e8" : "#fff",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* PHẦN HIỂN THỊ THÔNG TIN ĐỊA CHỈ */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <div>
+                        <span style={{ fontWeight: "bold", fontSize: "15px" }}>
+                          {item.fullName}
+                        </span>
+                        <span style={{ margin: "0 8px", color: "#ccc" }}>|</span>
+                        <span>{item.phoneNumber}</span>
+                      </div>
+
+                      {/* --- NÚT CẬP NHẬT (MỚI THÊM) --- */}
+                      <Button
+                        type="link"
+                        size="small"
+                        style={{ padding: 0, height: 'auto', marginRight: 10 }}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài (không chọn địa chỉ)
+                          setAddressId(item.id); // Set ID cần sửa
+                          setModalVisibleUpdateAddress(true); // Mở modal sửa
+                          // setIsModalAddressOpen(false); // Có thể đóng modal chọn nếu muốn (tùy chọn)
+                        }}
+                      >
+                        Cập nhật
+                      </Button>
+                      {/* -------------------------------- */}
+
+                    </div>
+
+                    <div style={{ color: "#666", marginTop: 4 }}>
+                      {[
+                        item.line,
+                        item.ward,
+                        item.district,
+                        item.province,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </div>
+                    {item.status === "DANG_SU_DUNG" && (
+                      <div style={{ marginTop: 5 }}>
+                        <Badge
+                          status="processing"
+                          text={<span style={{ color: "red" }}>Mặc định</span>}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Radio Button mô phỏng để người dùng biết đang chọn cái nào */}
+                  <div style={{ marginLeft: 10 }}>
+                    <Radio checked={addressDefault?.id === item.id} />
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+              Chưa có địa chỉ nào.
             </div>
-          ))}
+          )}
         </div>
       </Modal>
     </div>

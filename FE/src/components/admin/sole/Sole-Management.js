@@ -3,37 +3,37 @@ import "./StyleSole.css";
 import { Button, Input, Select, Space, Table, Tooltip } from "antd";
 import { SoleApi } from "../../../api/admin/sole/SoleApi";
 import { useAppDispatch, useAppSelector } from "../../../app/Hook";
-import { GetMaterial, SetMaterial } from "../../../app/reducer/MaterialReducer";
+import { GetSole, SetSole } from "../../../app/reducer/SoleReducer";
 import { BsWrenchAdjustableCircleFill } from "react-icons/bs";
 import { BiSolidDetail } from "react-icons/bi";
 
-import ModalCreateMaterial from "./modal/CreateModel";
-import ModalDetailMaterial from "./modal/DetailModal";
-import ModalUpdateMaterial from "./modal/UpdateModel";
+import ModalCreateSole from "./modal/CreateModel";
+import ModalDetailSole from "./modal/DetailModal";
+import ModalUpdateSole from "./modal/UpdateModel";
 
 
 const { Option } = Select;
 
-const MaterialAdmin = () => {
+const SoleAdmin = () => {
 
-    const [listMaterial, setListMaterial] = useState([]);
+    const [listSole, setListSole] = useState([]);
     const dispatch = useAppDispatch();
-    const [searchMaterial, setSearchMaterial] = useState({
+    const [searchSole, setSearchSole] = useState({
         keyword: "",
         status: "",
     });
 
-    const data = useAppSelector(GetMaterial);
+    const data = useAppSelector(GetSole);
 
     useEffect(() => {
         if (data != null) {
-            setListMaterial(data);
+            setListSole(data);
         }
     }, [data]);
 
     const handleInputChangeSearch = (name, value) => {
-        setSearchMaterial((prevSearchMaterial) => ({
-            ...prevSearchMaterial,
+        setSearchSole((prevSearchSole) => ({
+            ...prevSearchSole,
             [name]: value,
         }));
     };
@@ -50,16 +50,16 @@ const MaterialAdmin = () => {
     const handleSubmitSearch = (event) => {
         event.preventDefault();
         SoleApi.getAllsole({
-            name: searchMaterial.keyword,
-            status: searchMaterial.status,
+            name: searchSole.keyword,
+            status: searchSole.status,
         }).then((res) => {
             console.log(res.data.data);
-            setListMaterial(res.data.data);
-            dispatch(SetMaterial(res.data.data));
+            setListSole(res.data.data);
+            dispatch(SetSole(res.data.data));
         });
     };
     const handleClear = () => {
-        setSearchMaterial({
+        setSearchSole({
             keyword: "",
             status: "",
         });
@@ -68,8 +68,8 @@ const MaterialAdmin = () => {
     const loadTable = () => {
         SoleApi.getAllsole().then(
             (response) => {
-                setListMaterial(response.data.data);
-                dispatch(SetMaterial(response.data.data));
+                setListSole(response.data.data);
+                dispatch(SetSole(response.data.data));
             }, (err) => {
                 console.log("Error", err);
             }
@@ -93,7 +93,7 @@ const MaterialAdmin = () => {
         setModalVisibleDetail(false);
     };
 
-    const listMaterialByStt = listMaterial.map((item, index) => ({ ...item, stt: index + 1 }));
+    const listSoleByStt = listSole.map((item, index) => ({ ...item, stt: index + 1 }));
     const handleDetail = (id) => {
         setIdDetail(id);
         setModalVisibleDetail(true);
@@ -149,11 +149,6 @@ const MaterialAdmin = () => {
             render: (text, record) => (
                 <div>
                     <Space size="middle">
-                        {/* <Tooltip
-                         title="Chi tiết đế giày">
-                            <Button onClick={() => handleDetail(record.id)}
-                                icon={<BiSolidDetail />} shape="circle" />
-                        </Tooltip> */}
                         <Tooltip title="Chỉnh Sửa đế giày">
                             <Button type="primary" ghost onClick={() => handleEdit(record.id)}
                                 icon={<BsWrenchAdjustableCircleFill />} shape="circle" />
@@ -170,50 +165,6 @@ const MaterialAdmin = () => {
                 <span style={{ fontSize: "30px", paddingBottom: "10px", marginBottom: "20px" }}>Quản Lý Đế Giày</span>
             </div>
             <div className="material-management-content">
-                {/* <div className="filter">
-                    <span style={{ fontSize: "18px", fontWeight: "500", marginRight: "90%" }}>Filter:</span>
-                    <div className="content-filter">
-                        <div className="content-search">
-                            <div className="content-left">
-                                Tên Đế Giày :{" "}
-                                <Input
-                                    placeholder="Search..."
-                                    type="text"
-                                    name="keyword"
-                                    value={searchMaterial.keyword}
-                                    onChange={handleKeywordChange}
-                                    style={{ width: "50%", height: "40px", marginLeft: "10px" }}
-                                />
-                            </div>
-                            <div className="content-right">
-                                Trạng Thái :{" "}
-                                <Select
-                                    defaultValue=""
-                                    name="status"
-                                    value={searchMaterial.status}
-                                    onChange={handleStatusChange}
-                                    style={{ width: "50%", height: "40px", marginLeft: "10px" }}
-                                >
-                                    <Option value="" >Tất Cả</Option>
-                                    <Option value="DANG_SU_DUNG">Đang Sử Dụng</Option>
-                                    <Option value="KHONG_SU_DUNG">Ngừng Sử Dụng</Option>
-                                </Select>
-                            </div>
-                        </div>
-
-                        <div className="content-btn">
-                            <Button
-                                type="primary"
-                                onClick={handleSubmitSearch}
-                            >Tìm Kiếm</Button>
-                            <Button type="default" style={{ marginLeft: "40px" }}
-                                onClick={handleClear}
-                            >Reset</Button>
-                        </div>
-
-
-                    </div>
-                </div> */}
                 <div className="content-table">
                     <div className="content-table-header">
                         <span className="title-table" style={{ fontSize: "18px", fontWeight: "500" }}>
@@ -236,7 +187,7 @@ const MaterialAdmin = () => {
 
                     <div>
                         <Table
-                            dataSource={listMaterialByStt}
+                            dataSource={listSoleByStt}
                             rowKey="id"
                             columns={column}
                             pagination={{ pageSize: 10 }}
@@ -244,13 +195,13 @@ const MaterialAdmin = () => {
                             rowClassName={getRowClassName}
                         />
                     </div>
-                    <ModalCreateMaterial visible={modalVisible} onCancel={handleCancel} />
-                    <ModalUpdateMaterial
+                    <ModalCreateSole visible={modalVisible} onCancel={handleCancel} />
+                    <ModalUpdateSole
                         visible={modalVisibleUpdate}
                         id={idUpdate}
                         onCancel={handleCancel}
                     />
-                    <ModalDetailMaterial
+                    <ModalDetailSole
                         visible={modalVisibleDetail}
                         id={idDetail}
                         onCancel={handleCancel}
@@ -261,4 +212,4 @@ const MaterialAdmin = () => {
     );
 }
 
-export default MaterialAdmin;
+export default SoleAdmin;

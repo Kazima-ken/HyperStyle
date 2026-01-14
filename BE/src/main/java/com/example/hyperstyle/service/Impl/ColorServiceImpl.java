@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,17 +29,26 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
+    @Transactional // Đảm bảo tính toàn vẹn dữ liệu
     public Color createColor(@Valid CreateColorRequest request) {
+        // 1. Chuẩn hóa dữ liệu đầu vào (Loại bỏ khoảng trắng thừa, viết hoa mã Hex)
+        String trimName = request.getName().trim();
+        String formattedCode = request.getCode().trim().toUpperCase();
 
-        Color check = colorRepository.findByName(request.getName());
-
-        if (check != null) {
-            throw new RestApiException("Color Đã Tồn Tại");
+        // 2. Kiểm tra trùng tên (Bỏ qua hoa thường để chính xác hơn)
+        if (colorRepository.existsByNameIgnoreCase(trimName)) {
+            throw new RestApiException("Tên màu sắc '" + trimName + "' đã tồn tại!");
         }
 
+        // 3. Kiểm tra trùng mã màu (Quan trọng: Tránh 1 màu có nhiều tên gây rối kho)
+        if (colorRepository.existsByCodeIgnoreCase(formattedCode)) {
+            throw new RestApiException("Mã màu '" + formattedCode + "' đã được sử dụng!");
+        }
+
+        // 4. Mapping dữ liệu
         Color color = new Color();
-        color.setCode(request.getCode());
-        color.setName(request.getName());
+        color.setCode(formattedCode);
+        color.setName(trimName);
         color.setStatus(request.getStatus());
 
         return colorRepository.save(color);
@@ -85,7 +95,7 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public Color getOneByCode(String code) {
         Color color = colorRepository.getOneByCode(code);
-        if(color == null){
+        if (color == null) {
             throw new RestApiException("Color Không Tồn Tại");
         }
         return color;
